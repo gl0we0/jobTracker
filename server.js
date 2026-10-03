@@ -33,6 +33,7 @@ let jobArray = [];
 const jobsDir = path.join(__dirname, 'jobs');
 const dataDir = path.join(__dirname, 'data');
 const calendarFilePath = path.join(dataDir, 'calendar.json');
+const curtainPricingFilePath = path.join(dataDir, 'curtain-pricing.json');
 const validJobStates = [
     "Initial",
     "Measuring",
@@ -98,6 +99,137 @@ async function writeJsonAtomic(filePath, payload) {
     await fs.writeFile(tempFilePath, JSON.stringify(payload, null, 2));
     await fs.rename(tempFilePath, filePath);
 }
+
+function finiteNumber(value, label, { min = 0, max = Number.MAX_SAFE_INTEGER } = {}) {
+    const number = Number(value);
+    if (!Number.isFinite(number) || number < min || number > max) {
+        throw new Error(`${label} must be a number between ${min} and ${max}`);
+    }
+    return number;
+}
+
+function cleanText(value, fallback, maxLength = 160) {
+    const text = typeof value === 'string' ? value.trim() : '';
+    return (text || fallback).slice(0, maxLength);
+}
+
+function sanitizeCurtainPricingSettings(payload) {
+    if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+        throw new Error('Settings must be an object');
+    }
+
+    const headingDefaults = {
+        pencil: ['Pencil Pleat', 'Standard gathered pencil pleat heading.'],
+        triple: ['Triple Pleat', 'Hand-finished triple pleat heading.'],
+        eyelet: ['Eyelets', 'Eyelet heading, including a price for each eyelet used.'],
+        wave: ['Wave', 'Wave tape heading for 6cm or 8cm carrier spacing.']
+    };
+    const headings = {};
+    for (const [key, defaults] of Object.entries(headingDefaults)) {
+        const source = payload.headings && payload.headings[key];
+        if (!source || typeof source !== 'object' || Array.isArray(source)) {
+            throw new Error(`Missing heading settings for ${key}`);
+        }
+        headings[key] = {
+            label: cleanText(source.label, defaults[0], 60),
+            description: cleanText(source.description, defaults[1]),
+            fullness: finiteNumber(source.fullness, `${defaults[0]} fullness`, { min: 1, max: 3.5 }),
+            dropAllowanceCm: finiteNumber(source.dropAllowanceCm, `${defaults[0]} drop allowance`, { max: 500 }),
+            makingPricePerWidth: finiteNumber(source.makingPricePerWidth, `${defaults[0]} making price`, { max: 100000 })
+        };
+        if (key === 'eyelet') {
+            headings[key].hardwarePriceEach = finiteNumber(source.hardwarePriceEach, 'Eyelet price', { max: 10000 });
+        }
+    }
+
+    const romanSource = payload.romanBlinds;
+    if (!romanSource || typeof romanSource !== 'object' || Array.isArray(romanSource)) {
+        throw new Error('Missing Roman blind settings');
+    }
+    const mechanisms = {};
+    for (const key of ['standard', 'electric']) {
+        const mechanism = romanSource.mechanisms && romanSource.mechanisms[key];
+        if (!mechanism || !Array.isArray(mechanism.rows) || mechanism.rows.length === 0) {
+            throw new Error(`${key} mechanism requires at least one price band`);
+        }
+        const rows = mechanism.rows.map((row, index) => ({
+            maximumWidthCm: finiteNumber(row && row.maximumWidthCm, `${key} row ${index + 1} maximum width`, { min: 1, max: 10000 }),
+            price: finiteNumber(row && row.price, `${key} row ${index + 1} price`, { max: 100000 })
+        })).sort((a, b) => a.maximumWidthCm - b.maximumWidthCm);
+        if (new Set(rows.map(row => row.maximumWidthCm)).size !== rows.length) {
+            throw new Error(`${key} mechanism maximum widths must be unique`);
+        }
+        mechanisms[key] = {
+            label: cleanText(mechanism.label, key === 'standard' ? 'Standard Chain System' : 'Electric System', 80),
+            rows
+        };
+    }
+
+    const liningSource = payload.linings;
+    if (!liningSource || !Array.isArray(liningSource.options) || liningSource.options.length === 0) {
+        throw new Error('At least one lining option is required');
+    }
+    const ids = new Set();
+    const options = liningSource.options.map((option, index) => {
+        const id = cleanText(option && option.id, `lining-${index + 1}`, 60).toLowerCase().replace(/[^a-z0-9-]+/g, '-');
+        if (ids.has(id)) throw new Error('Lining option names must be unique');
+        ids.add(id);
+        return {
+            id,
+            label: cleanText(option && option.label, `Lining ${index + 1}`, 80),
+            pricePerMetre: finiteNumber(option && option.pricePerMetre, `Lining ${index + 1} price`, { max: 100000 })
+        };
+    });
+
+    return {
+        version: 1,
+        updatedAt: new Date().toISOString(),
+        headings,
+        romanBlinds: {
+            label: cleanText(romanSource.label, 'Roman Blinds', 80),
+            description: cleanText(romanSource.description, 'Allowances, making charges and mechanism price bands.'),
+            dropAllowanceCm: finiteNumber(romanSource.dropAllowanceCm, 'Roman blind drop allowance', { max: 500 }),
+            widthAllowanceCm: finiteNumber(romanSource.widthAllowanceCm, 'Roman blind width allowance', { max: 500 }),
+            baseMakingPrice: finiteNumber(romanSource.baseMakingPrice, 'Roman blind base making price', { max: 100000 }),
+            makingPricePerWidth: finiteNumber(romanSource.makingPricePerWidth, 'Roman blind making price per width', { max: 100000 }),
+            mechanisms
+        },
+        linings: {
+            label: cleanText(liningSource.label, 'Lining Options', 80),
+            description: cleanText(liningSource.description, 'Lining choices and their price per metre.'),
+            options
+        }
+    };
+}
+
+async function readCurtainPricingSettings() {
+    const raw = await fs.readFile(curtainPricingFilePath, 'utf8');
+    const parsed = JSON.parse(raw);
+    const settings = sanitizeCurtainPricingSettings(parsed);
+    if (typeof parsed.updatedAt === 'string') settings.updatedAt = parsed.updatedAt;
+    return settings;
+}
+
+async function getCurtainPricingSettings(req, res) {
+    try {
+        return res.status(200).json(await readCurtainPricingSettings());
+    } catch (error) {
+        return res.status(500).json({ message: 'Failed to load curtain pricing settings', error: error.message });
+    }
+}
+
+async function updateCurtainPricingSettings(req, res) {
+    try {
+        const settings = sanitizeCurtainPricingSettings(req.body);
+        await writeJsonAtomic(curtainPricingFilePath, settings);
+        return res.status(200).json({ message: 'Curtain pricing settings saved', settings });
+    } catch (error) {
+        return res.status(400).json({ message: error.message });
+    }
+}
+
+app.get('/settings/curtain-pricing', getCurtainPricingSettings);
+app.put('/settings/curtain-pricing', updateCurtainPricingSettings);
 
 function normalizeMonthKey(value) {
     if (typeof value !== 'string' || !/^\d{4}-\d{2}$/.test(value)) {
@@ -835,12 +967,16 @@ if (require.main === module) {
 module.exports = {
     app,
     calendarFilePath,
+    curtainPricingFilePath,
     loadJobs,
     startServer,
     getAllJobs,
     getJobByNumber,
     getCalendar,
     upsertCalendarDay,
+    getCurtainPricingSettings,
+    updateCurtainPricingSettings,
+    sanitizeCurtainPricingSettings,
     patchJobState,
     getStats,
     getJobFiles,

@@ -10,7 +10,13 @@
   <div id="curtainPricingApp" class="curtain-pricing-app">
     <div class="cp-container">
       <div class="cp-card">
-        <h2>Fabric Calculator</h2>
+        <div class="cp-title-row">
+          <h2>Fabric Calculator</h2>
+          <button type="button" class="cp-settings-open" onclick="app.openSettings()" aria-haspopup="dialog">
+            <span aria-hidden="true">⚙</span> Pricing settings
+          </button>
+        </div>
+        <div id="settings-load-warning" class="cp-alert cp-alert-warning" hidden></div>
 
         <div class="cp-mode-selector">
           <label><input type="radio" name="mode" value="curtain" checked onchange="app.update()"> <span>Curtains</span></label>
@@ -109,12 +115,7 @@
 
         <div class="cp-form-group">
           <label>Lining Choice</label>
-          <select id="lining" onchange="app.update()">
-            <option value="7">Standard (£7/m)</option>
-            <option value="8">Blackout (£8/m)</option>
-            <option value="9">Fleece Backed Standard (£9/m)</option>
-            <option value="10">Fleece Backed Blackout (£10/m)</option>
-          </select>
+          <select id="lining" onchange="app.update()"></select>
         </div>
       </div>
 
@@ -140,12 +141,29 @@
         </div>
       </div>
 
-      <details class="cp-settings-panel cp-card">
-        <summary>Edit Pricing and Add-on Variables</summary>
-        <div id="settings-ui" class="cp-settings-grid"></div>
-      </details>
     </div>
   </div>
+  <dialog id="settings-dialog" class="cp-settings-dialog" aria-labelledby="settings-title">
+    <form method="dialog" class="cp-settings-shell" onsubmit="return false">
+      <header class="cp-settings-header">
+        <div>
+          <span class="cp-eyebrow">Calculator configuration</span>
+          <h2 id="settings-title">Pricing settings</h2>
+          <p>Update making charges, allowances, mechanisms and lining prices.</p>
+        </div>
+        <button type="button" class="cp-icon-button" onclick="app.closeSettings()" aria-label="Close settings">×</button>
+      </header>
+      <div id="settings-status" class="cp-alert" hidden role="status"></div>
+      <div id="settings-ui" class="cp-settings-content"></div>
+      <footer class="cp-settings-footer">
+        <span id="settings-updated" class="cp-settings-updated"></span>
+        <div class="cp-settings-actions">
+          <button type="button" class="cp-btn-secondary" onclick="app.closeSettings()">Cancel</button>
+          <button type="button" id="settings-save" class="cp-btn-primary" onclick="app.saveSettings()">Save changes</button>
+        </div>
+      </footer>
+    </form>
+  </dialog>
   <script src="/js/curtainPricing.js"></script>
 </body>
 </html>

@@ -1,0 +1,133 @@
+{
+  "version": 1,
+  "updatedAt": "2026-10-03T13:00:53.940Z",
+  "headings": {
+    "pencil": {
+      "label": "Pencil Pleat",
+      "description": "Standard gathered pencil pleat heading.",
+      "fullness": 2,
+      "dropAllowanceCm": 26,
+      "makingPricePerWidth": 35
+    },
+    "triple": {
+      "label": "Triple Pleat",
+      "description": "Hand-finished triple pleat heading.",
+      "fullness": 2,
+      "dropAllowanceCm": 40,
+      "makingPricePerWidth": 47
+    },
+    "eyelet": {
+      "label": "Eyelets",
+      "description": "Eyelet heading, including a price for each eyelet used.",
+      "fullness": 1.5,
+      "dropAllowanceCm": 32,
+      "makingPricePerWidth": 39,
+      "hardwarePriceEach": 2
+    },
+    "wave": {
+      "label": "Wave",
+      "description": "Wave tape heading for 6cm or 8cm carrier spacing.",
+      "fullness": 2,
+      "dropAllowanceCm": 26,
+      "makingPricePerWidth": 39
+    }
+  },
+  "romanBlinds": {
+    "label": "Roman Blinds",
+    "description": "Allowances, making charges and mechanism price bands.",
+    "dropAllowanceCm": 20,
+    "widthAllowanceCm": 20,
+    "baseMakingPrice": 50,
+    "makingPricePerWidth": 35,
+    "mechanisms": {
+      "standard": {
+        "label": "Standard Chain System",
+        "rows": [
+          {
+            "maximumWidthCm": 30,
+            "price": 35
+          },
+          {
+            "maximumWidthCm": 60,
+            "price": 35
+          },
+          {
+            "maximumWidthCm": 100,
+            "price": 45
+          },
+          {
+            "maximumWidthCm": 150,
+            "price": 50
+          },
+          {
+            "maximumWidthCm": 200,
+            "price": 60
+          },
+          {
+            "maximumWidthCm": 300,
+            "price": 80
+          }
+        ]
+      },
+      "electric": {
+        "label": "Electric System",
+        "rows": [
+          {
+            "maximumWidthCm": 50,
+            "price": 213
+          },
+          {
+            "maximumWidthCm": 100,
+            "price": 229
+          },
+          {
+            "maximumWidthCm": 150,
+            "price": 242
+          },
+          {
+            "maximumWidthCm": 200,
+            "price": 254
+          },
+          {
+            "maximumWidthCm": 250,
+            "price": 266
+          },
+          {
+            "maximumWidthCm": 300,
+            "price": 283
+          },
+          {
+            "maximumWidthCm": 350,
+            "price": 294
+          }
+        ]
+      }
+    }
+  },
+  "linings": {
+    "label": "Lining Options",
+    "description": "Lining choices and their price per metre.",
+    "options": [
+      {
+        "id": "standard",
+        "label": "Standard",
+        "pricePerMetre": 7
+      },
+      {
+        "id": "blackout",
+        "label": "Blackout",
+        "pricePerMetre": 8
+      },
+      {
+        "id": "fleece-standard",
+        "label": "Fleece Backed Standard",
+        "pricePerMetre": 9
+      },
+      {
+        "id": "fleece-blackout",
+        "label": "Fleece Backed Blackout",
+        "pricePerMetre": 10
+      }
+    ]
+  }
+}

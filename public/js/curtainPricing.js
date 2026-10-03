@@ -1,5 +1,7 @@
 (function() {
 const app = {
+  config: null,
+  savedConfig: null,
   settings: {
     headings: {
       pencil: { mult: 2, addon: 26, makeup: 32 },
@@ -661,14 +663,76 @@ const app = {
   // ---------------------------
   // App lifecycle
   // ---------------------------
-  init() {
+  async init() {
     if (!document.getElementById('curtainPricingApp')) {
       return;
     }
     this.configureContextActions();
+    await this.loadSettings();
     this.renderSettings();
+    document.getElementById('settings-dialog')?.addEventListener('cancel', event => {
+      event.preventDefault();
+      this.closeSettings();
+    });
     window.addEventListener("resize", () => this.update());
     this.update();
+  },
+
+  async loadSettings() {
+    const warning = document.getElementById('settings-load-warning');
+    try {
+      const response = await fetch('/settings/curtain-pricing', { headers: { Accept: 'application/json' } });
+      if (!response.ok) throw new Error('The saved pricing settings could not be loaded.');
+      this.config = await response.json();
+      this.savedConfig = structuredClone(this.config);
+      this.applyConfig();
+      if (warning) warning.hidden = true;
+    } catch (error) {
+      const lining = document.getElementById('lining');
+      if (lining) {
+        lining.innerHTML = '<option value="7">Standard (£7.00/m)</option><option value="8">Blackout (£8.00/m)</option><option value="9">Fleece Backed Standard (£9.00/m)</option><option value="10">Fleece Backed Blackout (£10.00/m)</option>';
+      }
+      if (warning) {
+        warning.textContent = `${error.message} Built-in fallback prices are being used and cannot be saved until the connection is restored.`;
+        warning.hidden = false;
+      }
+    }
+  },
+
+  applyConfig() {
+    if (!this.config) return;
+    for (const [key, heading] of Object.entries(this.config.headings)) {
+      this.settings.headings[key] = {
+        mult: heading.fullness,
+        addon: heading.dropAllowanceCm,
+        makeup: heading.makingPricePerWidth,
+        ...(key === 'eyelet' ? { unitPrice: heading.hardwarePriceEach } : {})
+      };
+    }
+    const roman = this.config.romanBlinds;
+    this.settings.roman = {
+      hAddon: roman.dropAllowanceCm,
+      wAddon: roman.widthAllowanceCm,
+      baseMakeup: roman.baseMakingPrice,
+      perWidthMakeup: roman.makingPricePerWidth,
+      stdMech: roman.mechanisms.standard.rows.map(row => [row.maximumWidthCm, row.price]),
+      elecMech: roman.mechanisms.electric.rows.map(row => [row.maximumWidthCm, row.price])
+    };
+    this.populateLinings();
+  },
+
+  populateLinings() {
+    const select = document.getElementById('lining');
+    if (!select || !this.config) return;
+    const selectedId = select.selectedOptions[0]?.dataset.id;
+    select.replaceChildren(...this.config.linings.options.map(option => {
+      const element = document.createElement('option');
+      element.value = String(option.pricePerMetre);
+      element.dataset.id = option.id;
+      element.textContent = `${option.label} (£${Number(option.pricePerMetre).toFixed(2)}/m)`;
+      element.selected = option.id === selectedId;
+      return element;
+    }));
   },
 
   configureContextActions() {
@@ -989,28 +1053,127 @@ ${matchDebug ? "\n" + matchDebug : ""}`;
 
   renderSettings() {
     const container = document.getElementById('settings-ui');
-    if (!container) {
-      return;
+    if (!container || !this.config) return;
+    const esc = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+    const numberField = (path, label, description, value, options = {}) => `
+      <label class="cp-setting-field"><span>${esc(label)}</span><small>${esc(description)}</small>
+        <div class="cp-number-input"><input type="number" data-setting-path="${esc(path)}" value="${Number(value)}" min="${options.min ?? 0}" max="${options.max ?? 100000}" step="${options.step ?? 0.01}">${options.unit ? `<b>${esc(options.unit)}</b>` : ''}</div>
+      </label>`;
+    const headings = Object.entries(this.config.headings).map(([key, heading]) => `
+      <article class="cp-settings-card"><div class="cp-settings-card-heading"><h4>${esc(heading.label)}</h4><p>${esc(heading.description)}</p></div>
+        <div class="cp-settings-field-grid">
+          ${numberField(`headings.${key}.fullness`, 'Default fullness', 'Fabric-to-track width multiplier.', heading.fullness, { min: 1, max: 3.5, step: 0.1, unit: '×' })}
+          ${numberField(`headings.${key}.dropAllowanceCm`, 'Drop allowance', 'Added to the finished curtain drop.', heading.dropAllowanceCm, { step: 1, unit: 'cm' })}
+          ${numberField(`headings.${key}.makingPricePerWidth`, 'Making price', 'Labour charge for each fabric width.', heading.makingPricePerWidth, { unit: '£ / width' })}
+          ${key === 'eyelet' ? numberField('headings.eyelet.hardwarePriceEach', 'Eyelet price', 'Hardware price for each eyelet.', heading.hardwarePriceEach, { unit: '£ each' }) : ''}
+        </div></article>`).join('');
+    const roman = this.config.romanBlinds;
+    const mechanisms = ['standard', 'electric'].map(type => {
+      const mechanism = roman.mechanisms[type];
+      const rows = mechanism.rows.map((row, index) => `
+        <div class="cp-price-row">
+          <label><span>Up to</span><div class="cp-number-input"><input type="number" min="1" step="1" value="${row.maximumWidthCm}" data-mechanism="${type}" data-row="${index}" data-column="maximumWidthCm"><b>cm</b></div></label>
+          <label><span>Price</span><div class="cp-number-input"><input type="number" min="0" step="0.01" value="${row.price}" data-mechanism="${type}" data-row="${index}" data-column="price"><b>£</b></div></label>
+          <button type="button" class="cp-row-remove" onclick="app.removeMechanismRow('${type}', ${index})" aria-label="Remove price band">×</button>
+        </div>`).join('');
+      return `<section class="cp-mechanism"><div class="cp-subsection-heading"><h4>${esc(mechanism.label)}</h4><button type="button" onclick="app.addMechanismRow('${type}')">+ Add band</button></div>${rows}</section>`;
+    }).join('');
+    const linings = this.config.linings.options.map((option, index) => `
+      <div class="cp-price-row cp-lining-row">
+        <label><span>Name</span><input type="text" value="${esc(option.label)}" data-lining-row="${index}" data-column="label" maxlength="80"></label>
+        <label><span>Price per metre</span><div class="cp-number-input"><input type="number" min="0" step="0.01" value="${option.pricePerMetre}" data-lining-row="${index}" data-column="pricePerMetre"><b>£ / m</b></div></label>
+        <button type="button" class="cp-row-remove" onclick="app.removeLining(${index})" aria-label="Remove lining option">×</button>
+      </div>`).join('');
+    container.innerHTML = `
+      <section class="cp-settings-section"><div class="cp-section-heading"><span>01</span><div><h3>Curtain headings</h3><p>Default fullness, allowances and making charges.</p></div></div><div class="cp-settings-grid">${headings}</div></section>
+      <section class="cp-settings-section"><div class="cp-section-heading"><span>02</span><div><h3>Roman blinds</h3><p>${esc(roman.description)}</p></div></div>
+        <article class="cp-settings-card"><div class="cp-settings-field-grid">${numberField('romanBlinds.dropAllowanceCm', 'Drop allowance', 'Added to the finished blind drop.', roman.dropAllowanceCm, { step: 1, unit: 'cm' })}${numberField('romanBlinds.widthAllowanceCm', 'Width allowance', 'Added before calculating fabric widths.', roman.widthAllowanceCm, { step: 1, unit: 'cm' })}${numberField('romanBlinds.baseMakingPrice', 'Base making price', 'Fixed charge for each blind.', roman.baseMakingPrice, { unit: '£' })}${numberField('romanBlinds.makingPricePerWidth', 'Price per width', 'Additional charge for each fabric width.', roman.makingPricePerWidth, { unit: '£ / width' })}</div></article>
+        <div class="cp-mechanism-grid">${mechanisms}</div></section>
+      <section class="cp-settings-section"><div class="cp-section-heading"><span>03</span><div><h3>${esc(this.config.linings.label)}</h3><p>${esc(this.config.linings.description)}</p></div></div><div class="cp-lining-list">${linings}</div><button type="button" class="cp-add-option" onclick="app.addLining()">+ Add lining option</button></section>`;
+    container.querySelectorAll('[data-setting-path]').forEach(input => input.addEventListener('input', event => { this.setConfigPath(event.target.dataset.settingPath, Number(event.target.value)); this.previewSettings(); }));
+    container.querySelectorAll('[data-mechanism]').forEach(input => input.addEventListener('input', event => { const { mechanism, row, column } = event.target.dataset; this.config.romanBlinds.mechanisms[mechanism].rows[Number(row)][column] = Number(event.target.value); this.previewSettings(); }));
+    container.querySelectorAll('[data-lining-row]').forEach(input => input.addEventListener('input', event => { const { liningRow, column } = event.target.dataset; this.config.linings.options[Number(liningRow)][column] = column === 'pricePerMetre' ? Number(event.target.value) : event.target.value; this.previewSettings(); }));
+    const updated = document.getElementById('settings-updated');
+    if (updated && this.config.updatedAt) updated.textContent = `Last saved ${new Date(this.config.updatedAt).toLocaleString()}`;
+  },
+
+  setConfigPath(path, value) {
+    const parts = path.split('.');
+    const key = parts.pop();
+    parts.reduce((object, part) => object[part], this.config)[key] = value;
+  },
+
+  previewSettings() {
+    this.applyConfig();
+    this.update();
+    this.showSettingsStatus('Changes are previewed in the calculator. Save when you are ready.', 'info');
+  },
+
+  openSettings() {
+    if (!this.config) return;
+    this.config = structuredClone(this.savedConfig);
+    this.applyConfig();
+    this.renderSettings();
+    this.showSettingsStatus('', 'info');
+    document.getElementById('settings-dialog').showModal();
+  },
+
+  closeSettings() {
+    if (this.savedConfig) {
+      this.config = structuredClone(this.savedConfig);
+      this.applyConfig();
+      this.update();
     }
-    container.innerHTML = '<h4>Pricing Per Heading</h4><div style="grid-column: 1 / -1;"></div>';
-    for (let key in this.settings.headings) {
-      container.innerHTML += `
-        <div class="cp-settings-card">
-          <strong>${key}</strong>
-          <label>Price £
-            <input type="number" value="${this.settings.headings[key].makeup}"
-              oninput="app.settings.headings['${key}'].makeup=parseFloat(this.value||0);app.update()">
-          </label>
-          <label>Addon cm
-            <input type="number" value="${this.settings.headings[key].addon}"
-              oninput="app.settings.headings['${key}'].addon=parseFloat(this.value||0);app.update()">
-          </label>
-          ${key === "eyelet" ? `
-          <label>Eyelet £ each
-            <input type="number" value="${this.settings.headings[key].unitPrice}"
-              oninput="app.settings.headings['${key}'].unitPrice=parseFloat(this.value||0);app.update()">
-          </label>` : ''}
-        </div>`;
+    document.getElementById('settings-dialog').close();
+  },
+
+  showSettingsStatus(message, type) {
+    const status = document.getElementById('settings-status');
+    if (!status) return;
+    status.textContent = message;
+    status.className = `cp-alert cp-alert-${type}`;
+    status.hidden = !message;
+  },
+
+  addMechanismRow(type) {
+    const rows = this.config.romanBlinds.mechanisms[type].rows;
+    const last = rows[rows.length - 1] || { maximumWidthCm: 0, price: 0 };
+    rows.push({ maximumWidthCm: last.maximumWidthCm + 50, price: last.price });
+    this.renderSettings(); this.previewSettings();
+  },
+
+  removeMechanismRow(type, index) {
+    const rows = this.config.romanBlinds.mechanisms[type].rows;
+    if (rows.length <= 1) return this.showSettingsStatus('Each mechanism needs at least one price band.', 'error');
+    rows.splice(index, 1); this.renderSettings(); this.previewSettings();
+  },
+
+  addLining() {
+    this.config.linings.options.push({ id: `lining-${Date.now()}`, label: 'New lining', pricePerMetre: 0 });
+    this.renderSettings(); this.previewSettings();
+  },
+
+  removeLining(index) {
+    if (this.config.linings.options.length <= 1) return this.showSettingsStatus('At least one lining option is required.', 'error');
+    this.config.linings.options.splice(index, 1); this.renderSettings(); this.previewSettings();
+  },
+
+  async saveSettings() {
+    const button = document.getElementById('settings-save');
+    button.disabled = true; button.textContent = 'Saving…';
+    this.showSettingsStatus('', 'info');
+    try {
+      const response = await fetch('/settings/curtain-pricing', { method: 'PUT', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(this.config) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || 'Settings could not be saved.');
+      this.config = result.settings;
+      this.savedConfig = structuredClone(result.settings);
+      this.applyConfig(); this.renderSettings(); this.update();
+      this.showSettingsStatus('Pricing settings saved successfully.', 'success');
+    } catch (error) {
+      this.showSettingsStatus(error.message, 'error');
+    } finally {
+      button.disabled = false; button.textContent = 'Save changes';
     }
   },
 

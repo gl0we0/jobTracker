@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('fs').promises;
 const path = require('path');
 
-const { loadJobs, getAllJobs, getJobByNumber, getCalendar, upsertCalendarDay, patchJobState, getStats, getJobFiles, uploadJobFile, saveJob, calendarFilePath } = require('../server');
+const { loadJobs, getAllJobs, getJobByNumber, getCalendar, upsertCalendarDay, patchJobState, getStats, getJobFiles, uploadJobFile, saveJob, calendarFilePath, curtainPricingFilePath, getCurtainPricingSettings, updateCurtainPricingSettings } = require('../server');
 
 function createMockRes() {
     return {
@@ -111,6 +111,48 @@ test('GET /calendar handler rejects invalid month format', async () => {
 
     assert.equal(res.statusCode, 400);
     assert.deepEqual(res.body, { message: 'Invalid month. Use YYYY-MM.' });
+});
+
+test('GET curtain pricing settings returns the persisted configuration', async () => {
+    const res = createMockRes();
+    await getCurtainPricingSettings({}, res);
+
+    assert.equal(res.statusCode, 200);
+    assert.equal(res.body.version, 1);
+    assert.equal(res.body.headings.pencil.label, 'Pencil Pleat');
+    assert.ok(Array.isArray(res.body.romanBlinds.mechanisms.standard.rows));
+    assert.ok(Array.isArray(res.body.linings.options));
+});
+
+test('PUT curtain pricing settings validates and persists prices', async () => {
+    const originalContents = await fs.readFile(curtainPricingFilePath, 'utf8');
+
+    try {
+        const source = JSON.parse(originalContents);
+        source.headings.pencil.makingPricePerWidth = 39.5;
+        source.linings.options[0].pricePerMetre = 7.75;
+        const saveRes = createMockRes();
+        await updateCurtainPricingSettings({ body: source }, saveRes);
+
+        assert.equal(saveRes.statusCode, 200);
+        assert.equal(saveRes.body.settings.headings.pencil.makingPricePerWidth, 39.5);
+        assert.equal(saveRes.body.settings.linings.options[0].pricePerMetre, 7.75);
+
+        const saved = JSON.parse(await fs.readFile(curtainPricingFilePath, 'utf8'));
+        assert.equal(saved.headings.pencil.makingPricePerWidth, 39.5);
+    } finally {
+        await fs.writeFile(curtainPricingFilePath, originalContents);
+    }
+});
+
+test('PUT curtain pricing settings rejects invalid negative prices', async () => {
+    const source = JSON.parse(await fs.readFile(curtainPricingFilePath, 'utf8'));
+    source.headings.eyelet.hardwarePriceEach = -1;
+    const res = createMockRes();
+    await updateCurtainPricingSettings({ body: source }, res);
+
+    assert.equal(res.statusCode, 400);
+    assert.match(res.body.message, /Eyelet price/);
 });
 
 test('PUT /calendar/day/:date persists entries to calendar store', async () => {
