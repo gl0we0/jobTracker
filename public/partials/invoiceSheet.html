@@ -1,0 +1,112 @@
+<div id="jobViewInvoiceSheet" class="jobViewItemsSheet jobViewUtilitySheet jobViewInvoiceModal" aria-hidden="true">
+    <div class="jobViewItemsSheetBackdrop" data-invoice-sheet-close></div>
+    <div class="jobViewItemsSheetPanel jobViewUtilitySheetPanel jobViewInvoiceModalPanel">
+        <div class="jobViewUtilitySheetHeader">
+            <h3>Invoice</h3>
+            <div class="jobViewUtilitySheetActions">
+                <span id="jobViewInvoiceStatus" class="jobViewUtilityStatus" aria-live="polite"></span>
+                <button type="button" id="jobViewInvoiceCloseButton" class="jobViewIconButton" aria-label="Close invoice sheet" data-invoice-sheet-close>
+                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                </button>
+            </div>
+        </div>
+        <div id="jobViewInvoiceBody" class="jobViewUtilitySheetBody">
+            <div id="jobViewInvoicePrintArea" class="invoiceDocument">
+                <div class="invoiceHeader">
+                    <div class="invoiceBrand">
+                        <img src="/images/PLFLogo_sm.png" alt="Peter Lowe Fabrics" class="invoiceLogoImage">
+                    </div>
+                    <div class="invoiceTitleWrap">
+                        <div class="invoiceTitle">Invoice</div>
+                        <div id="invoiceNumberDisplay" class="invoiceNumber">inv</div>
+                    </div>
+                </div>
+
+                <div class="invoiceMetaGrid">
+                    <div class="invoiceCustomerBlock">
+                        <label class="invoiceLabel" for="invoiceCustomerName">Name</label>
+                        <input type="text" id="invoiceCustomerName" class="invoiceInput">
+                        <label class="invoiceLabel" for="invoiceCustomerAddress">Address</label>
+                        <textarea id="invoiceCustomerAddress" class="invoiceTextarea" rows="4"></textarea>
+                    </div>
+                    <div class="invoiceInfoBlock">
+                        <label class="invoiceLabel" for="invoiceIssueDate">Date</label>
+                        <input type="date" id="invoiceIssueDate" class="invoiceInput">
+                        <label class="invoiceLabel" for="invoiceJobReference">Order</label>
+                        <input type="text" id="invoiceJobReference" class="invoiceInput">
+                        <label class="invoiceLabel" for="invoiceNumberInput">Invoice No.</label>
+                        <input type="text" id="invoiceNumberInput" class="invoiceInput">
+                    </div>
+                </div>
+
+                <div class="invoiceTableWrap">
+                    <table class="invoiceTable">
+                        <thead>
+                            <tr>
+                                <th class="invoiceQtyCol">Amt</th>
+                                <th>Items</th>
+                                <th class="invoiceCostCol">Cost</th>
+                                <th class="invoiceTotalCol">Line Total</th>
+                                <th class="invoiceActionCol no-print"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="invoiceLineItemsBody"></tbody>
+                    </table>
+                    <button type="button" id="invoiceAddLineButton" class="btn btn-default btn-sm no-print">Add line</button>
+                </div>
+
+                <div class="invoiceSummaryGrid">
+                    <div class="invoiceFooterInfo">
+                        <div class="invoiceFooterColumns">
+                            <div class="invoiceFooterColumn">
+                                <div class="invoiceFooterHeading">Details</div>
+                                <div id="invoiceFooterDetailsContent" class="invoicePrintField invoicePrintMultiline">
+                                    Peter Lowe Fabrics, <br>Norbury Farm, Jacksons Lane, <br> Hazel Grove, Stockport, <br> SK7 5JS
+                                </div>
+                            </div>
+                            <div class="invoiceFooterColumn">
+                                <div class="invoiceFooterHeading">Bacs Details</div>
+                                <div id="invoiceFooterBacsContent" class="invoicePrintField invoicePrintMultiline">
+                                    Sort code: 01-03-87 <br/>
+                                    Acct No: 95590390 <br/>
+                                    <br/>
+                                    Vat No: 405 8846 36 <br/>
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="invoiceTotalsCard">
+                        <div class="invoiceTotalsRow">
+                            <span>Total</span>
+                            <strong id="invoiceNetTotal">GBP0.00</strong>
+                        </div>
+                        <div class="invoiceTotalsRow">
+                            <span>VAT @20%</span>
+                            <strong id="invoiceVatTotal">GBP0.00</strong>
+                        </div>
+                        <div class="invoiceTotalsRow invoiceTotalsRowGrand">
+                            <span>Grand total</span>
+                            <strong id="invoiceGrossTotal">GBP0.00</strong>
+                        </div>
+                    </div>
+                </div>
+                <div id="invoiceFooterContactContent" class="invoiceFooterContactBar">
+                    Tel: 0161 456 2773
+                    <span class="invoiceFooterContactDivider">|</span>
+                    Web: www.peterlowefabrics.com
+                    <span class="invoiceFooterContactDivider">|</span>
+                    Email: info@peterlowefabrics.com
+                </div>
+            </div>
+
+            <div class="jobViewUtilitySheetToolbar no-print">
+                <button type="button" id="jobViewInvoiceSaveButton" class="btn btn-primary">Save Invoice</button>
+                <button type="button" id="jobViewInvoicePrintButton" class="btn btn-default">Print</button>
+                <button type="button" id="jobViewInvoiceUploadPdfButton" class="btn btn-default">Upload PDF</button>
+                <input type="file" id="jobViewInvoicePdfInput" accept=".pdf,application/pdf" hidden>
+            </div>
+        </div>
+    </div>
+</div>

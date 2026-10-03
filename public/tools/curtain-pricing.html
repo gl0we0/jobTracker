@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Curtain Pricing Tool</title>
+  <link rel="stylesheet" href="/css/curtainPricing.css" />
+</head>
+<body class="curtain-pricing-page">
+  <div id="curtainPricingApp" class="curtain-pricing-app">
+    <div class="cp-container">
+      <div class="cp-card">
+        <h2>Fabric Calculator</h2>
+
+        <div class="cp-mode-selector">
+          <label><input type="radio" name="mode" value="curtain" checked onchange="app.update()"> <span>Curtains</span></label>
+          <label><input type="radio" name="mode" value="roman" onchange="app.update()"> <span>Roman Blind</span></label>
+        </div>
+
+        <div class="cp-grid-2">
+          <div class="cp-form-group">
+            <label>Rail/Track Width (cm) <span id="width-convert-chip" class="cp-convert-chip" style="display:none;">in-&gt;cm</span></label>
+            <input type="text" inputmode="decimal" id="width" value="200" oninput="app.update()">
+          </div>
+          <div class="cp-form-group">
+            <label>Finished Drop (cm) <span id="drop-convert-chip" class="cp-convert-chip" style="display:none;">in-&gt;cm</span></label>
+            <input type="text" inputmode="decimal" id="drop" value="210" oninput="app.update()">
+          </div>
+        </div>
+
+        <div id="curtain-only">
+          <div class="cp-grid-2">
+            <div class="cp-form-group">
+              <label>Heading Type</label>
+              <select id="heading" onchange="app.syncHeading()">
+                <option value="pencil">Pencil Pleat</option>
+                <option value="triple">Triple Pleat</option>
+                <option value="eyelet">Eyelets</option>
+                <option value="wave">Wave</option>
+              </select>
+            </div>
+            <div class="cp-form-group">
+              <label>Fullness: <b id="fullness-val">2.0</b>x</label>
+              <input type="range" id="fullness" min="1.0" max="3.5" step="0.1" value="2" oninput="app.update()">
+            </div>
+          </div>
+
+          <div class="cp-form-group" id="wave-carrier-group" style="display:none;">
+            <label>Wave Carrier Spacing (track)</label>
+            <div class="cp-switch-group">
+              <label>
+                <input type="radio" name="wave-carrier" id="wave-carrier-8" value="8" checked onchange="app.update()">
+                <span>8cm</span>
+              </label>
+              <label>
+                <input type="radio" name="wave-carrier" id="wave-carrier-6" value="6" onchange="app.update()">
+                <span>6cm</span>
+              </label>
+            </div>
+            <div class="cp-hint">Used for wave hook counts. Pair mode rounds each panel up to an even count.</div>
+          </div>
+
+          <div class="cp-grid-2">
+            <div class="cp-form-group">
+              <label>Curtain Configuration</label>
+              <select id="curtain-config" onchange="app.update()">
+                <option value="single">Single curtain</option>
+                <option value="pair" selected>Pair of curtains</option>
+              </select>
+              <div class="cp-hint">Affects half-drop A/B rule and the canvas (1 vs 2 panels).</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="roman-only" style="display:none;">
+          <div class="cp-form-group">
+            <label>Mechanism Type</label>
+            <select id="roman-mech" onchange="app.update()">
+              <option value="standard">Standard Chain System</option>
+              <option value="electric">Electric System</option>
+            </select>
+          </div>
+        </div>
+
+        <hr class="cp-divider">
+
+        <div class="cp-grid-2">
+          <div class="cp-form-group">
+            <label>Fabric Price (£/m)</label>
+            <input type="number" id="fab-price" value="24" oninput="app.update()">
+          </div>
+          <div class="cp-form-group">
+            <label>Fabric Width (cm)</label>
+            <input type="number" id="fab-width" value="140" oninput="app.update()">
+          </div>
+          <div class="cp-form-group">
+            <label>Pattern Repeat (cm)</label>
+            <input type="number" id="fab-repeat" value="0" oninput="app.update()">
+          </div>
+          <div class="cp-form-group">
+            <label>Pattern Match</label>
+            <select id="fab-match" onchange="app.update()">
+              <option value="none">None</option>
+              <option value="normal">Normal Match</option>
+              <option value="half">Half Drop</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="cp-form-group">
+          <label>Lining Choice</label>
+          <select id="lining" onchange="app.update()">
+            <option value="7">Standard (£7/m)</option>
+            <option value="8">Blackout (£8/m)</option>
+            <option value="9">Fleece Backed Standard (£9/m)</option>
+            <option value="10">Fleece Backed Blackout (£10/m)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="cp-card">
+        <h3>Estimate Details</h3>
+        <div id="eyelet-info" class="cp-info" style="display:none;"></div>
+        <textarea id="output-text" readonly></textarea>
+        <div class="cp-output-actions">
+          <button class="cp-btn-copy" onclick="app.copyText()">Copy Result</button>
+          <button id="cp-add-to-job" class="cp-btn-add" onclick="app.addToJobNotes()" hidden>Add to Job</button>
+        </div>
+      </div>
+
+      <div class="cp-card cp-stage-card">
+        <h3>Visual Stage</h3>
+        <div class="cp-diagram-stage">
+          <canvas id="diagram"></canvas>
+        </div>
+        <div class="cp-form-group" id="open-group">
+          <label>Open / Close: <b id="open-val">50</b>% closed</label>
+          <input type="range" id="open" min="0" max="100" step="1" value="50" oninput="app.update()">
+          <div class="cp-hint">Visual only (does not change fabric quantities).</div>
+        </div>
+      </div>
+
+      <details class="cp-settings-panel cp-card">
+        <summary>Edit Pricing and Add-on Variables</summary>
+        <div id="settings-ui" class="cp-settings-grid"></div>
+      </details>
+    </div>
+  </div>
+  <script src="/js/curtainPricing.js"></script>
+</body>
+</html>

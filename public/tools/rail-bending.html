@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rail Bending Guide</title>
+  <link rel="stylesheet" href="/css/railBending.css" />
+</head>
+<body class="rb-page">
+  <div class="rb-shell">
+    <aside class="rb-panel">
+      <div class="rb-panel-copy">
+        <h1>Rail Bending Guide</h1>
+        <p class="rb-intro">Generate a clean bending schematic from panel lengths and interior angles</p>
+      </div>
+
+      <div class="rb-form-group">
+        <label for="lengths">Segment lengths (cm, comma-separated)</label>
+        <textarea id="lengths">80, 60, 80</textarea>
+      </div>
+
+      <div class="rb-form-group">
+        <label for="angles">Interior angles (degrees, comma-separated)</label>
+        <textarea id="angles">135, 135</textarea>
+      </div>
+
+      <div class="rb-form-row">
+        <div class="rb-form-group">
+          <label for="centerIndex">Horizontal panel index</label>
+          <input id="centerIndex" type="number" value="2" min="1" />
+        </div>
+
+        <div class="rb-form-group">
+          <label for="direction">Direction</label>
+          <select id="direction">
+            <option value="cw">Clockwise</option>
+            <option value="ccw">Counter-clockwise</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="rb-form-group">
+        <label for="notes">Job / Manufacturer Notes</label>
+        <textarea id="notes" rows="6">Rail type:
+Job ref:
+Client:</textarea>
+      </div>
+
+      <div class="rb-actions">
+        <button id="drawButton" type="button">Draw Schematic</button>
+        <a class="rb-back-link" href="/">Back to Job Tracker</a>
+      </div>
+
+      <section class="rb-output-card">
+        <div class="rb-output-header">
+          <h2>Guide Summary</h2>
+        </div>
+        <textarea id="outputText" class="rb-output-text" readonly></textarea>
+        <div class="rb-actions rb-actions-secondary">
+         
+          <button id="copyButton" type="button" class="rb-secondary-button">Copy Summary</button>
+          <button id="addToJobButton" type="button" class="rb-secondary-button rb-primary-soft" hidden>Add to Job</button>
+        </div>
+      </section>
+    </aside>
+
+    <main class="rb-stage">
+      <div class="rb-stage-card">
+        <div class="rb-stage-header">
+           <button id="downloadButton" type="button" class="rb-secondary-button">Download PNG</button>
+          
+        </div>
+
+        <div class="rb-canvas-wrap">
+          <canvas id="canvas" width="900" height="600"></canvas>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const margin = 80;
+
+    function parseList(str) {
+      return str.split(",").map(v => parseFloat(v.trim())).filter(v => !isNaN(v));
+    }
+
+    function rotatePoint(p, origin, angle) {
+      const s = Math.sin(angle);
+      const c = Math.cos(angle);
+      const x = p.x - origin.x;
+      const y = p.y - origin.y;
+      return {
+        x: x * c - y * s + origin.x,
+        y: x * s + y * c + origin.y
+      };
+    }
+
+    function drawText(text, x, y, color = "#000", align = "center") {
+      ctx.fillStyle = color;
+      ctx.font = "12px sans-serif";
+      ctx.textAlign = align;
+      ctx.textBaseline = "middle";
+      ctx.fillText(text, x, y);
+    }
+
+    function buildSummaryText(lengths, angles, centerIndex, clockwise, notesText, totalRailLength) {
+      const lines = [
+        "Rail Bending Guide",
+        "Segment lengths: " + lengths.join(", ") + " cm",
+        "Interior angles: " + angles.join(", ") + "°",
+        "Horizontal panel index: " + (centerIndex + 1),
+        "Direction: " + (clockwise ? "Clockwise" : "Counter-clockwise"),
+        "Total rail length: " + totalRailLength.toFixed(0) + " cm"
+      ];
+
+      const trimmedNotes = notesText.trim();
+      if (trimmedNotes) {
+        lines.push("", trimmedNotes);
+      }
+
+      return lines.join("\n");
+    }
+
+    function updateSummary(text) {
+      const output = document.getElementById("outputText");
+      if (output) {
+        output.value = text;
+      }
+    }
+
+    function copySummary() {
+      const output = document.getElementById("outputText");
+      if (!output || !output.value.trim()) {
+        return;
+      }
+      output.select();
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(output.value).catch(() => {
+          document.execCommand("copy");
+        });
+        return;
+      }
+      document.execCommand("copy");
+    }
+
+    function buildDownloadFilename() {
+      const notesText = (document.getElementById("notes").value || "").trim();
+      const match = notesText.match(/job\s*ref\s*:\s*(.+)/i);
+      const ref = match && match[1] ? match[1].trim() : "";
+      const safeRef = ref.replace(/[^a-z0-9_-]+/gi, "-").replace(/^-+|-+$/g, "");
+      return safeRef ? "rail-bending-" + safeRef + ".png" : "rail-bending-guide.png";
+    }
+
+    function downloadCanvas() {
+      const link = document.createElement("a");
+      link.href = canvas.toDataURL("image/png");
+      link.download = buildDownloadFilename();
+      link.click();
+    }
+
+    function addSummaryToJob() {
+      const output = document.getElementById("outputText");
+      if (!output || !output.value.trim()) {
+        return;
+      }
+
+      window.parent.postMessage({
+        type: "railBending:addToJobNotes",
+        payload: {
+          text: output.value
+        }
+      }, window.location.origin);
+    }
+
+    function configureContextActions() {
+      const addToJobButton = document.getElementById("addToJobButton");
+      const backLink = document.querySelector(".rb-back-link");
+      if (!addToJobButton) {
+        return;
+      }
+
+      const inIframe = window.self !== window.top;
+      const inJobViewPanel = inIframe
+        && window.frameElement
+        && typeof window.frameElement.closest === "function"
+        && !!window.frameElement.closest(".curtain-side-panel");
+
+      addToJobButton.hidden = !inJobViewPanel;
+      if (backLink) {
+        backLink.hidden = inIframe;
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const lengths = parseList(document.getElementById("lengths").value);
+      const totalRailLength = lengths.reduce((a, b) => a + b, 0);
+      const angles = parseList(document.getElementById("angles").value);
+      const centerIndex = parseInt(document.getElementById("centerIndex").value, 10) - 1;
+      const clockwise = document.getElementById("direction").value === "cw";
+
+      if (lengths.length < 2 || angles.length !== lengths.length - 1) {
+        alert("Angles must be exactly one less than lengths.");
+        return;
+      }
+
+      if (centerIndex < 0 || centerIndex >= lengths.length) {
+        alert("Horizontal panel index must reference an existing segment.");
+        return;
+      }
+
+      const sign = clockwise ? -1 : 1;
+      const turns = angles.map(a => sign * (180 - a));
+
+      let points = [{ x: 0, y: 0 }];
+      let angleDeg = 0;
+
+      lengths.forEach((len, i) => {
+        const rad = angleDeg * Math.PI / 180;
+        const last = points[points.length - 1];
+        const next = {
+          x: last.x + len * Math.cos(rad),
+          y: last.y + len * Math.sin(rad)
+        };
+        points.push(next);
+        if (i < turns.length) {
+          angleDeg += turns[i];
+        }
+      });
+
+      const p1 = points[centerIndex];
+      const p2 = points[centerIndex + 1];
+      const rot = -Math.atan2(p2.y - p1.y, p2.x - p1.x);
+
+      points = points.map(p => rotatePoint(p, p1, rot));
+
+      const xs = points.map(p => p.x);
+      const ys = points.map(p => p.y);
+      const minX = Math.min(...xs);
+      const maxX = Math.max(...xs);
+      const minY = Math.min(...ys);
+      const maxY = Math.max(...ys);
+      const widthRange = Math.max(maxX - minX, 1);
+      const heightRange = Math.max(maxY - minY, 1);
+      const scale = Math.min(
+        (canvas.width - margin * 2) / widthRange,
+        (canvas.height - margin * 2) / heightRange
+      );
+
+      function tx(p) {
+        return {
+          x: margin + (p.x - minX) * scale,
+          y: canvas.height - (margin + (p.y - minY) * scale)
+        };
+      }
+
+      const tpoints = points.map(tx);
+
+      const labels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      tpoints.forEach((p, i) => {
+        drawText(labels[i], p.x, p.y - 12);
+      });
+
+      angles.forEach((a, i) => {
+        const p = tpoints[i + 1];
+        const pPrev = tpoints[i];
+        const pNext = tpoints[i + 2];
+
+        const v1 = { x: pPrev.x - p.x, y: pPrev.y - p.y };
+        const v2 = { x: pNext.x - p.x, y: pNext.y - p.y };
+
+        let a1 = Math.atan2(v1.y, v1.x);
+        let a2 = Math.atan2(v2.y, v2.x);
+
+        if (a1 < 0) {
+          a1 += Math.PI * 2;
+        }
+        if (a2 < 0) {
+          a2 += Math.PI * 2;
+        }
+
+        const ccw = (a2 - a1 + Math.PI * 2) % (Math.PI * 2);
+        const cw = (a1 - a2 + Math.PI * 2) % (Math.PI * 2);
+        const cross = v1.x * v2.y - v1.y * v2.x;
+
+        let start;
+        let end;
+        let anticlockwise;
+
+        if (cross < 0) {
+          start = a1;
+          end = a2;
+          anticlockwise = false;
+        } else {
+          start = a1;
+          end = a2;
+          anticlockwise = true;
+        }
+
+        ctx.strokeStyle = "darkred";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 20, start, end, !anticlockwise);
+        ctx.stroke();
+
+        const mid = anticlockwise ? start + ccw / 2 : start - cw / 2;
+        drawText(
+          a + "°",
+          p.x + Math.cos(mid) * 32,
+          p.y + Math.sin(mid) * 32,
+          "darkred"
+        );
+      });
+
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "#000";
+      ctx.beginPath();
+      tpoints.forEach((p, i) => {
+        if (i === 0) {
+          ctx.moveTo(p.x, p.y);
+        } else {
+          ctx.lineTo(p.x, p.y);
+        }
+      });
+      ctx.stroke();
+
+      tpoints.slice(0, -1).forEach((p, i) => {
+        const p2Segment = tpoints[i + 1];
+        const mx = (p.x + p2Segment.x) / 2;
+        const my = (p.y + p2Segment.y) / 2;
+        const dx = p2Segment.x - p.x;
+        const dy = p2Segment.y - p.y;
+        const len = Math.hypot(dx, dy);
+        const nx = -dy / len;
+        const ny = dx / len;
+
+        drawText(lengths[i] + " cm", mx + nx + 2 * 12, my + ny * 12);
+      });
+
+      const yDim = canvas.height - margin + 30;
+      ctx.beginPath();
+      ctx.moveTo(margin, yDim);
+      ctx.lineTo(canvas.width - margin, yDim);
+      ctx.stroke();
+
+      const notesText = document.getElementById("notes").value || "";
+      updateSummary(buildSummaryText(lengths, angles, centerIndex, clockwise, notesText, totalRailLength));
+      const noteLines = [
+        ...notesText.split("\n"),
+        "Total rail length: " + totalRailLength.toFixed(0) + " cm"
+      ];
+
+      const noteX = 20;
+      const noteY = 30;
+      const lineHeight = 16;
+      const blockWidth = 260;
+      const blockHeight = noteLines.length * lineHeight + 20;
+
+      ctx.fillStyle = "rgba(255,255,255,0.85)";
+      ctx.fillRect(noteX - 10, noteY - 18, blockWidth, blockHeight);
+
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(noteX - 10, noteY - 18, blockWidth, blockHeight);
+
+      ctx.fillStyle = "#000";
+      ctx.font = "12px sans-serif";
+      ctx.textAlign = "left";
+      ctx.textBaseline = "top";
+
+      noteLines.forEach((line, i) => {
+        ctx.fillText(line, noteX, noteY + i * lineHeight);
+      });
+    }
+
+    document.getElementById("downloadButton").addEventListener("click", downloadCanvas);
+    document.getElementById("copyButton").addEventListener("click", copySummary);
+    document.getElementById("addToJobButton").addEventListener("click", addSummaryToJob);
+    document.getElementById("drawButton").addEventListener("click", draw);
+    configureContextActions();
+    draw();
+  </script>
+</body>
+</html>

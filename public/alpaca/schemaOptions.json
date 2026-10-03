@@ -1,0 +1,155 @@
+{
+  "form": {
+    "buttons": {
+        "submit": {
+          "class":"sumbitButton"
+        }
+        },
+        "toggleSubmitValidState": false
+    },
+  "fields": {
+    "jobNumber": {
+      "type": "hidden",
+      "disabled": true,
+      "fieldClass": "jobViewJobNumber"
+    },
+    "customerDetails": {
+      "fieldClass": "jobViewCustomerDetails",
+      "fields": {
+        "address": {
+          "type": "textarea",
+          "placeholder": "Enter address here",
+          "rows": 5
+        },
+        "name": {
+          "type": "text",
+          "placeholder": "Enter Customer Name",
+          "fieldClass": "jobViewName"
+        },
+        "email": {
+          "type": "email",
+          "placeholder": "Enter a valid email address."
+        },
+        "phoneNumber": {
+          "type": "text",
+          "placeholder": "Phone Number",
+          "fieldClass": "jobViewPhoneNumber"
+        }
+      }
+    },
+    "notes": {
+      "type": "textarea",
+      "placeholder": "Enter notes here",
+        "fieldClass": "jobViewNotes",
+        "rows": 16
+    },
+    "jobState": {
+      "fieldClass": "jobViewStateSelect",
+      "type": "select",
+      "sort": false
+    },
+    "colorPick": {
+      "fieldClass":"jobViewColorPicker",
+      "type": "colorpicker",
+      "component": false
+    },
+    "orderItems": {
+      "fieldClass": "jobViewOrderItems",
+      "type": "array",
+      "collapsible": false,
+      "collapsed": false,
+      "actionbar":{},
+      "toolbarSticky": true,
+      "actionbarStyle": "right",
+      "items": {
+        "fieldClass": "jobViewOrderItemsItem",
+        "fields": {
+          "itemID": {
+            "type": "hidden"
+          },
+          "item": {
+            "fieldClass":"jobViewItemLabel",
+            "type": "text",
+            "placeholder": "Enter item details"
+          },
+          "itemType": {
+            "fieldClass": "jobViewItemType",
+            "type": "select",
+            "optionLabels": ["Fabric", "Track", "Pole", "Roller", "Other"]
+          },
+          "supplier": {
+            "fieldClass": "jobViewItemSupplier",
+            "type": "select"
+          },
+
+          "ordered": {
+            "fieldClass": "jobViewItemOrdered",
+            "rightLabel": "ordered?"
+          },
+          "orderDate": {
+            "fieldClass": "jobViewItemOrderedDate",
+            "type": "date",
+            "dateFormat": "DD/MM/YYYY",
+            "rightLabel": "Date",
+            "placeholder": "12/12/2012"        
+          },
+          "delivered": {
+            "fieldClass": "jobViewItemDelivered",
+            "rightLabel": "Delivered?"
+          },
+          "deliveryDate": {
+            "fieldClass": "jobViewItemDelveryDate",
+            "type": "date",
+            "dateFormat": "DD/MM/YYYY",
+            "placeholder": "12/12/2012"
+          },
+          "note": {
+            "fieldClass": "jobViewItemNote",
+            "placeholder": "Notes"
+          }
+        }
+      }
+    },
+    "timeline": {
+      "type": "array",
+      "validate": false,
+      "showMessages": true,
+      "disabled": true,
+      "hidden": false,
+      "label": "Timeline",
+      "helpers": [],
+      "helpersPosition": "below",
+      "fieldClass": "jobTimeline",
+      "hideInitValidationError": false,
+      "optionLabels": [],
+      "lazyLoading": false,
+      "collapsible": true,
+      "collapsed": true,
+      "legendStyle": "button",
+      "animate": false,
+      "dragAndDrop": false,
+      "toolbarSticky": false,
+      "toolbarStyle": "button",
+      "toolbarPosition": "top",
+      "actionbarStyle": "top",
+      "toolbar": {
+          "showLabels": false,
+          "actions": []
+      },
+      "actionbar": {
+          "showLabels": false,
+          "actions": []
+      },
+      "hideToolbarWithChildren": true,
+      "fields": {}
+  },
+  "invoice": {
+    "type": "hidden",
+    "hidden": true
+  },
+  "jobCost":{
+    "type": "text",
+    "fieldClass": "jobViewCost"
+  }
+}  
+}

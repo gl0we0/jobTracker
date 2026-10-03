@@ -1,0 +1,2921 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family:"Google Sans",Roboto, Arial, sans-serif;
+    background: #f9f7f6; /* A soft off-white background */
+}
+
+header {
+    background: #e7e5e4; /* A soft grey */
+    padding: 10px 20px;
+    text-align: center;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    height: 60px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: row;
+    align-items: center; /* Ensures all children align vertically in the center */
+    justify-content: space-between; /* Distributes extra space evenly between elements */
+    z-index: 1; /* Ensures the header stays above all other content */
+}
+
+#jobSearchDiv {
+    position: relative;
+    width: 50%;
+}
+
+#jobSearch {
+    width: 100%;
+    padding: 10px;
+    padding-right: 30px; /* Make room for the clear button */
+    border: 1px solid #dcdcdc;
+    background: #f9f7f6;
+    border-radius: 30px;
+    outline: none;
+}
+
+#clearSearch {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #ccc;
+    font-size: 50px;
+}
+
+#jobSearch:focus + #clearSearch {
+    visibility: visible;
+}
+
+#headerMenu1,
+#headerMenu2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#headerMenu1 img, #headerMenu2 img {
+    height: 30px; /* Set a suitable height for your icons */
+    width: auto; /* Maintain aspect ratio */
+    transition: transform 0.2s ease-in-out, opacity 0.2s ease-in-out; /* Smooth transition for transform and opacity changes */
+    cursor: pointer; /* Indicates the elements are clickable */
+    opacity: 0.6;
+}
+
+#headerMenu1 .headerIconButton {
+    width: 30px;
+    height: 30px;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: #5f5f5f;
+    transition: transform 0.2s ease-in-out, opacity 0.2s ease-in-out;
+    cursor: pointer;
+    opacity: 0.6;
+}
+
+#headerMenu1 .headerIconButton .bi {
+    font-size: 24px;
+    line-height: 1;
+}
+
+#headerMenu1 img:hover, #headerMenu2 img:hover {
+    transform: scale(1.1); /* Slightly enlarges the icon */
+    opacity: 0.8; /* Slightly transparent */
+}
+
+#headerMenu1 .headerIconButton:hover {
+    transform: scale(1.1);
+    opacity: 0.8;
+}
+
+#headerMenu1 img:active, #headerMenu2 img:active {
+    transform: scale(0.9); /* Slightly decreases the icon size when clicked */
+    opacity: 0.6; /* More transparency when active */
+}
+
+#headerMenu1 .headerIconButton:active {
+    transform: scale(0.9);
+    opacity: 0.6;
+}
+
+  
+.dropdown-item {
+    display: block;
+    height: 30px;
+    color: #696464;
+    background-color: #e9e9e9;
+    margin-top: 8px;
+    border-bottom: #3b3b3b solid 1px;
+    font-size: large;
+    font-weight: bold;
+    margin: 2px;
+  
+}
+.dropdown-item:hover{
+    background-color: #c8dfb3;
+}
+.dropdown-menu {
+     border-radius: 10px;
+     background-color: #a1a1a16c;
+}
+
+.dropdown-submenu {
+    position: relative;
+}
+
+.dropdown-item-with-caret::after {
+    content: ">";
+    float: right;
+}
+
+.dropdown-submenu > .dropdown-menu {
+    top: 0;
+    left: 100%;
+    margin-top: -2px;
+    display: none;
+}
+
+.dropup .dropdown-submenu > .dropdown-menu {
+    top: auto;
+    bottom: 0;
+}
+
+.dropdown-submenu:hover > .dropdown-menu {
+    display: block;
+}
+
+.dropdown-toggle::after {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: .255em;
+    vertical-align: .255em;
+    content: "";
+    border-top: .3em solid;
+    border-right: .3em solid transparent;
+    border-bottom: 0;
+    border-left: .3em solid transparent;
+  }
+
+main {
+    display: flex;
+    justify-content: space-around;
+    padding: 5px;
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    margin-top: 70px; /* Adjusted to account for fixed header */
+    margin-bottom: 25px;
+    padding-bottom: 25px;
+    overflow: auto;
+}
+
+#jobColumns {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    margin-top: 10px;
+    padding-bottom: 100px;
+    overflow: auto;
+    width: inherit;
+}
+
+.jobColumn {
+    margin-top: 10x;
+    margin: 2px;
+    padding: 2px;
+    border: 1px solid #d1d3d4; /* A light grey border for the column */
+    background: #f1f1f1; /* A soft background for the column */
+    box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+    display: flex;
+    flex-wrap: wrap;
+    align-content: baseline;
+    max-height: 500px;
+    overflow: auto;
+}
+
+.jobColumn.drag-over {
+    border: 2px dashed #6f9c46;
+    background: #e8f2df;
+}
+
+/* Default to 4 columns */
+.jobColumn {
+    flex-basis: calc(98% / 4);
+}
+
+/* Adjust to 3 columns if the viewport width is below 800px */
+@media (max-width: 800px) {
+    .jobColumn {
+        flex-basis: calc(98% / 2);
+    }
+}
+
+/* Adjust to 2 columns if the viewport width is below 600px */
+@media (max-width: 600px) {
+    .jobColumn {
+        flex-basis: calc(98% / 2);
+    }
+}
+
+/* Adjust to 1 column if the viewport width is below 400px */
+@media (max-width: 400px) {
+    .jobColumn {
+        flex-basis: 100%;
+    }
+}
+
+.jobColumn.expanded {
+    transition: width 0.3s ease;
+    width: calc(100% - 50px);
+    position: absolute;
+    z-index: 10;
+    background-color: #fff;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    max-height:90%;
+}
+
+.jobColumn.collapsed {
+    max-height: 48px;
+    overflow: hidden;
+}
+
+.jobColumn.collapsed .jobCard {
+    display: none;
+}
+
+.jobColumnHeader {
+    font-size: large;
+    position: sticky;
+    top: 0px;
+    width: 100%;
+    height: 40px;
+    background-color: #d8e2dc; /* A soft pastel color */
+    color: #495057; /* A darker color for the text for contrast */
+    text-align: left;
+    padding: 8px 8px; /* Add padding for a taller, more prominent header */
+    border-top-left-radius: 6px; /* Rounded corners at the top */
+    border-top-right-radius: 6px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), /* Adding a subtle shadow for depth */
+                0 2px 4px -1px rgba(0,0,0,0.06);
+    margin-bottom: 2px; /* Adds a small space between header and cards */
+    font-weight: 600; /* Bolder font for header text */
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.jobColumnTitle {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.jobColumnCount {
+    min-width: 28px;
+    text-align: center;
+    border-radius: 12px;
+    padding: 1px 8px;
+    font-size: 12px;
+    background: rgba(73, 80, 87, 0.15);
+}
+
+.jobColumnControls {
+    display: flex;
+    align-items: center;
+}
+
+.jobColumnCollapseButton {
+    width: 24px;
+    height: 24px;
+    border: 1px solid rgba(73, 80, 87, 0.16);
+    border-radius: 6px;
+    line-height: 24px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.5);
+    color: #5e6670;
+    cursor: pointer;
+    padding: 0;
+    transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.jobColumnCollapseButton:hover {
+    background: rgba(255, 255, 255, 0.82);
+    border-color: rgba(73, 80, 87, 0.24);
+    color: #40464f;
+}
+
+.jobColumnCollapseButton:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(73, 80, 87, 0.3);
+}
+
+.jobCard {
+    background: #fff;
+    margin: 10px 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+    overflow: hidden;
+    padding-top: 5px;
+    display: flex; /* Set up flex container */
+    flex-direction: column; /* Stack children vertically */
+    transition: all .2s ease-in-out; 
+    height: 120px;
+    width: 120px;
+
+}
+
+.jobCard:hover {
+
+ transform: scale(1.1);
+}
+
+.jobCardTitle {
+  font-size: large;
+  font-weight: 500;
+  line-height: 2rem;
+  color: #181818; /* Dark grey for readability */
+  padding-left: 5px;
+  padding-top: 2px;
+}
+
+.jobCardFooter {
+    position: sticky;
+    margin-top: auto; /* Pushes footer to the bottom */
+    bottom: 0px;
+    font-size: 1rem;
+    padding: 2px;
+    background-color: #d8e2dc; /* Match the header */
+    box-shadow: 0px -2px 5px #f9f7f6; /* A shadow to match the body */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.jobCardNote {
+    font-size: 1.4rem;
+    font-weight: 500;
+    line-height: 1.2rem;
+    color: #495057;
+    overflow: hidden;
+    padding: 2px 5px;
+    flex: 1; /* Allows the note area to grow and fill the space */
+    white-space: pre-wrap;
+}
+
+.jobOrderChip {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+    border-radius: 999px;
+    padding: 1px 6px;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.18);
+    border: none;
+    cursor: pointer;
+    background-clip: padding-box;
+}
+
+.jobOrderChip--pending-all {
+    background: #d9534f;
+}
+
+.jobOrderChip--pending-partial {
+    background: #f0ad4e;
+}
+
+.jobOrderChip--ordered {
+    background: #4b8b3b;
+}
+
+.jobOrderChip--arrived {
+    background: #2f7d32;
+}
+
+.jobOrderChip:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.8), 0 0 0 4px rgba(52, 73, 94, 0.2);
+}
+
+.jobOrderChipTooltipLayer {
+    position: fixed;
+    z-index: 1000;
+    min-width: 160px;
+    max-width: 220px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    background: rgba(33, 37, 41, 0.95);
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 500;
+    line-height: 1.4;
+    white-space: pre-line;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.22);
+    pointer-events: none;
+}
+
+#createJobButton {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    font-size: 24px;
+    background: #a3be8c; /* A soft green for the button */
+    color: white;
+    border: none;
+    border-radius: 50%; /* Circular button */
+    cursor: pointer;
+    box-shadow: 0px 2px 10px rgba(0,0,0,0.2); /* A subtle shadow for depth */
+}
+
+.JD_modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+.JD_modal-content {
+    margin: 0;
+    padding: 0;
+    width: min(99vw, 1880px);
+    height: 100vh;
+    max-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    margin-inline: auto;
+}
+#jobDetailsContent {
+	width: 100%;
+	height: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding-top: 44px;
+    --job-accent: #7f8c8d;
+    overflow: hidden;
+}
+
+.close {
+    position: relative;
+    font-size: 50px;
+    font-weight: bold;
+    z-index: 100;
+    right: 20px;
+}
+
+#jobDetailsPopup > .JD_modal-content > .close {
+    position: absolute;
+    top: 4px;
+    right: 14px;
+    line-height: 1;
+}
+
+
+  #jobDetailsForm input[type="text"],
+#jobDetailsForm input[type="email"] {
+    width: 80%; /* Control width */
+    padding: 8px; /* Add padding */
+    margin: 0px 0; /* Add some margin */
+    display: inline-block; /* Make sure inputs are properly aligned */
+    border: 1px solid #ccc; /* Border color */
+    box-sizing: border-box; /* Include padding and border in the width */
+    border-radius: 4px; /* Rounded corners */
+}
+
+#jobFormContainerOuter {
+    height: 100%;
+    width: 100%;
+    min-height: 0;
+}
+
+#jobDetailsForm button {
+    background-color: #4CAF50; /* Green background */
+    color: white; /* White text */
+    margin: 8px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer; /* Pointer cursor on hover */
+}
+
+#jobDetailsForm button:hover {
+    background-color: #45a049; /* Darker shade of green on hover */
+}
+
+.jobViewCustomerDetails {
+    width: 100%;
+    position: relative;
+    top: 0px;
+    left: 0px;
+    background-color: #ccc;
+    border: none;
+}
+
+.jobViewStateSelect {
+    width: auto;
+    position: static;
+    background-color: transparent;
+    padding-top: 0;
+    min-width: 260px;
+    margin: 0;
+}
+
+.jobViewNotes {
+  max-height: 500px;
+  position:relative;
+  width: 100%;
+  top: 0px;
+  left: 0px;
+}
+
+.jobViewNotes textarea {
+    border-radius: 0px;
+   overflow: auto;
+   letter-spacing: .00625em;
+ font-family: Roboto,Arial,sans-serif;
+ font-size: 1.6rem;
+ font-weight: 400;
+ line-height: 1.6rem;
+ margin-top: 0px;
+ padding-top: 12px;
+ min-height: 220px;
+ max-height: 420px
+}
+
+.jobViewHeader {
+    width: 100%;
+    background-color: rgba(94, 96, 94, 0.534);
+    position: absolute;
+    height: 15px;
+    box-shadow: 0px 2px 5px rgba(0,0,0,0.1); /* Optional shadow for better visibility */
+  }
+
+  .jobTimeline {
+    background-color: #9ea0a0;
+    display: none;
+  }
+
+  .jobViewCost {
+    width: auto;
+    position: static;
+    margin-left: auto;
+  }
+.jobViewCost input[type="text"]{
+    width: 120px;
+    min-width: 120px;
+}
+.jobViewJobNumber {
+    width: 150px;
+    position: absolute;
+   z-index: 100;
+    right: 0px;
+    top: 0px;
+    background-color: #9ea0a0;
+    
+}
+.jobViewName {
+    width:100%;
+    position:relative;
+    top:0px;
+    left:0px;
+}
+.jobViewColorPicker {
+    width: auto;
+    position: static;
+    margin: 0;
+}
+.jobViewOrderItems {
+    position: relative;
+    bottom: 0px;
+    right: 0px;
+    background-color: #9ea0a0;   
+}
+
+.jobViewOrderItemsItem {
+    background-color: #2f9b9b;
+}
+
+
+#jobFormContainer {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    font-family: Arial, sans-serif;
+}
+
+#jobViewNameLabel {
+  font-size: large;
+  padding: 10px 12px 6px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-left: 6px solid var(--job-accent);
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.jobViewNameLabelText {
+  font-weight: 600;
+}
+
+.jobViewSaveStatus {
+  min-height: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #616b75;
+}
+
+.jobViewSaveStatus.is-saving {
+  color: #5e6670;
+}
+
+.jobViewSaveStatus.is-success {
+  color: #2d6a4f;
+}
+
+.jobViewSaveStatus.is-warning {
+  color: #8a6700;
+}
+
+.jobViewSaveStatus.is-error {
+  color: #b42318;
+}
+
+.jobViewTimelineActions {
+  display: flex;
+  align-items: center;
+  order: 1;
+  margin-right: auto;
+}
+
+.jobViewTimelineButton {
+  border-color: #d4dbe2;
+  background: #f8fafb;
+  color: #324554;
+  max-width: 460px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.jobViewTimelineButton:hover,
+.jobViewTimelineButton:focus {
+  background: #edf3f7;
+  color: #243949;
+}
+
+
+.shadow {
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+#jobViewTop{
+    padding: 6px 8px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dde3e8;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+#jobViewBottom {
+    position: sticky;
+    width: 100%;
+    min-height: 75px;
+    height: auto;
+    bottom:0px; 
+    box-shadow: #000;
+    background-color: #e1e1e6ed;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    z-index: 2;
+}
+
+.jobViewStateSelect .alpaca-field,
+.jobViewCost .alpaca-field,
+.jobViewColorPicker .alpaca-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+.jobViewStateSelect .alpaca-control-label,
+.jobViewCost .alpaca-control-label,
+.jobViewColorPicker .alpaca-control-label {
+    margin: 0;
+    width: auto;
+    white-space: nowrap;
+    padding: 0;
+    font-weight: 600;
+    color: #435667;
+}
+
+.jobViewStateSelect .alpaca-control,
+.jobViewCost .alpaca-control,
+.jobViewColorPicker .alpaca-control {
+    width: auto;
+    flex: 0 1 auto;
+}
+
+.jobViewStateSelect select {
+    min-width: 220px;
+}
+
+.jobViewCost {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    order: 3;
+}
+
+.jobViewColorPicker {
+    display: flex;
+    align-items: center;
+    order: 2;
+    margin-left: 8px;
+}
+
+.jobViewColorPicker .alpaca-control {
+    flex: 0 0 auto;
+}
+
+.jobViewColorPicker input[type="color"] {
+    width: 34px;
+    min-width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 1px solid #c3ccd4;
+    border-radius: 6px;
+    background: transparent;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.jobViewColorPicker input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.jobViewColorPicker input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: 5px;
+}
+
+.jobViewColorPicker input[type="color"]::-moz-color-swatch {
+    border: none;
+    border-radius: 5px;
+}
+
+#jobViewMiddle {
+    flex-grow: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;  /* Prevents overflow during transition */
+    background-color: #fff;
+    transition: all 0.3s ease; /* Smooth transition for resizing */
+	border: 1px solid #000;
+}
+
+.drawer-header {
+    width: 100%;
+    padding: 10px;
+    background-color: #eef2f5;
+    border: 1px solid #dde3e8;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.3s ease; /* Smooth transition for resizing */
+    font-weight: 600;
+    color: #2f3f4f;
+}
+
+.drawer-header:hover {
+    background-color: #e6edf2;
+}
+
+.drawer-header:after {
+    content: '+';
+    float: right;
+    color: #607284;
+}
+
+.drawer.expanded .drawer-header:after {
+    content: '\2212';
+}
+
+.drawer-content {
+    display: none; /* Initially hidden */
+    padding: 0px;
+    border-top: 1px solid #ccc;
+    overflow-y: auto;
+    flex-grow: 1; /* Take available space */
+    transition: all 0.3s ease; /* Smooth expansion and collapse */
+}
+
+.drawer.expanded .drawer-content {
+    display: block; /* Show when expanded */
+    transition: all 0.3s ease; /* Smooth transition for resizing */
+
+}
+
+.close-btn, .job-number, .job-name {
+    margin: 0 10px;
+}
+
+.job-state {
+    float: right;
+}
+
+.drawer {
+    flex-grow: 0; /* Initially, drawers don't grow */
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 5px;
+    transition: flex-grow 0.3s ease; /* Animate growth of drawer */
+}
+
+.drawer.expanded {
+    flex-grow: 1; /* Expanded drawer takes all available space */
+    transition: all 0.3s ease; /* Smooth transition for resizing */
+}
+
+#jobViewMiddle_ItemsDrawer {
+    overflow: auto; 
+    min-height: 260px;
+    max-height: 45vh;
+    flex-flow: row;
+}
+
+
+#jobViewMiddle_ItemsDrawer .alpaca-container-has-items {
+    display: flex;
+    width: 100%;
+    transition: all 0.3s ease; /* Smooth transition for resizing */
+    flex-wrap: wrap;
+}
+
+#jobViewMiddle_ItemsDrawer label{
+    display: flex;
+}
+
+.jobViewItemLabel {
+    width: min(360px, 100%);
+}
+.jobViewItemLabel input[type='text'] {
+    width: 100%
+}
+.jobViewItemType {
+    width: 180px;
+}
+.jobViewItemNote input {
+    width: min(280px, 100%);
+}
+
+
+/* Ensuring the container acts as a flex container */
+.alpaca-container.alpaca-vertical.alpaca-container-has-items {
+    display: flex;
+    flex-wrap: wrap;
+    
+}
+
+/* Styles for individual container items */
+.alpaca-container-item {
+    
+    margin-bottom: 0px; /* Space between rows */
+}
+
+/* Specific field adjustments for better control */
+.alpaca-field-select, .alpaca-field-text, .alpaca-field-checkbox, .alpaca-field-date {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0; /* Removes additional bottom margin to tighten layout */
+}
+
+
+.alpaca-form-buttons-container {
+    position: sticky;
+    bottom: 8px;
+    left: auto;
+    z-index: 3;
+    margin-left: auto;
+    padding: 0 12px 8px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.alpaca-field-select .alpaca-control, 
+.alpaca-field-text .alpaca-control, 
+.alpaca-field-checkbox .alpaca-control,
+.alpaca-field-date .alpaca-control {
+    flex: 1; /* Control takes remaining space */
+}
+
+
+/* Adjustments for checkboxes to properly align within flex layout */
+.alpaca-control.checkbox {
+    align-items: center;
+    display: flex;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .alpaca-container-item {
+        flex: 1 1 100%; /* Each item takes full width on smaller screens */
+    }
+
+    .alpaca-field-select .alpaca-control-label, 
+    .alpaca-field-text .alpaca-control-label, 
+    .alpaca-field-checkbox .alpaca-control-label,
+    .alpaca-field-date .alpaca-control-label {
+        flex: 0 0 40%; /* Increase label width on small screens for better readability */
+    }
+
+    .jobViewTimelineButton {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .jobViewTimelineActions {
+        width: 100%;
+    }
+
+    #jobViewBottom {
+        flex-wrap: wrap;
+    }
+
+    .jobViewStateSelect {
+        min-width: 0;
+        width: 100%;
+    }
+
+    .jobViewStateSelect .alpaca-control,
+    .jobViewCost .alpaca-control,
+    .jobViewColorPicker .alpaca-control {
+        width: 100%;
+        flex: 1 1 auto;
+    }
+
+    .jobViewStateSelect select,
+    .jobViewCost input[type="text"] {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .jobViewColorPicker {
+        order: 3;
+        margin-left: 0;
+    }
+
+    .jobViewCost {
+        order: 4;
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .jobViewItemLabel,
+    .jobViewItemType,
+    .jobViewItemNote input {
+        width: 100%;
+    }
+}
+.form-horizontal .form-group {
+    margin: 0px;
+}
+
+.col-sm-9 {
+    padding: 0px;
+    width:100%;
+}
+
+.jobCard.dragging {
+    opacity: 0.65;
+    transform: scale(1.03);
+}
+
+.order-items-header {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: #f9fafb;
+    border-bottom: 1px solid #dde3e8;
+}
+
+.order-items-header-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.order-items-header .modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #2d3b49;
+}
+
+.order-items-back-btn {
+    width: 36px;
+    height: 36px;
+}
+
+.order-items-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.order-items-status-switch {
+    display: inline-flex;
+    background: #ebeff3;
+    border-radius: 999px;
+    padding: 3px;
+    border: 1px solid #d6dee8;
+}
+
+.order-status-btn {
+    border: none;
+    background: transparent;
+    color: #445362;
+    font-weight: 700;
+    padding: 6px 11px;
+    border-radius: 999px;
+    min-width: 95px;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.order-status-btn:hover {
+    background: #e0e7ee;
+}
+
+.order-status-btn.is-active {
+    background: #2f6ea5;
+    color: #ffffff;
+}
+
+.order-items-delivered-toggle {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    color: #445362;
+}
+
+.order-items-select {
+    width: auto;
+    min-width: 150px;
+}
+
+.order-items-body {
+    max-height: 68vh;
+    overflow: auto;
+}
+
+.order-items-table thead th {
+    position: sticky;
+    top: 0;
+    background: #f4f7fa;
+    z-index: 1;
+}
+
+.order-items-table td {
+    vertical-align: middle;
+}
+
+.order-job-name {
+    color: #5c6c7c;
+    line-height: 1.2;
+}
+
+.order-items-empty-state {
+    margin: 12px 0 0;
+    text-align: center;
+    color: #6b7784;
+    font-weight: 600;
+}
+
+#calendarModal {
+    z-index: 1050;
+}
+
+#calendarModal .modal-dialog.calendar-modal-dialog {
+    width: min(98vw, 1680px);
+    margin: 1vh auto;
+}
+
+#calendarModal .calendar-modal-content {
+    height: 96vh;
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.calendar-modal-header {
+    padding: 10px 14px;
+    border-bottom: 1px solid #d9ddd4;
+    background: linear-gradient(180deg, #f6f2ea 0%, #ebe5da 100%);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.calendar-modal-heading {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.calendar-modal-heading-copy {
+    min-width: 0;
+}
+
+.calendar-modal-heading .modal-title {
+    margin: 0;
+}
+
+.calendar-status-text {
+    font-size: 12px;
+    color: #6e7468;
+}
+
+.calendar-back-btn {
+    flex: 0 0 auto;
+}
+
+.calendar-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.calendar-select {
+    min-width: 112px;
+}
+
+.calendar-month-trigger {
+    border: 0;
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    color: #31352f;
+    transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.calendar-month-trigger:hover,
+.calendar-month-trigger:focus {
+    background: rgba(255, 255, 255, 0.58);
+    color: #232720;
+    outline: none;
+}
+
+.calendar-month-trigger-label {
+    font-size: 27px;
+    line-height: 1;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.calendar-month-trigger-icon {
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+.calendar-today-compact {
+    min-width: 38px;
+    height: 38px;
+    border-radius: 999px;
+    padding: 0;
+}
+
+#calendarMonthPickerModal {
+    z-index: 1060;
+}
+
+.calendar-picker-dialog {
+    width: min(420px, 92vw);
+    margin: 12vh auto;
+}
+
+.calendar-picker-content {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.calendar-picker-header {
+    background: #f6f2ea;
+    border-bottom: 1px solid #e5e1d8;
+}
+
+.calendar-picker-body {
+    padding: 18px;
+}
+
+.calendar-picker-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: 12px;
+}
+
+.calendar-picker-field {
+    margin: 0;
+    display: grid;
+    gap: 6px;
+    font-size: 12px;
+    color: #5e645d;
+    font-weight: 600;
+}
+
+.calendar-picker-field .calendar-select {
+    min-width: 0;
+    height: 40px;
+    border-radius: 10px;
+    border-color: #cfd4c9;
+    background: #fff;
+    font-weight: 600;
+}
+
+.calendar-select-month {
+    font-size: 16px;
+}
+
+.calendar-select-year {
+    font-size: 15px;
+}
+
+.calendar-modal-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 0;
+    background: #f5f2ec;
+}
+
+.calendar-shell {
+    height: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 2.2fr) minmax(300px, 0.95fr);
+}
+
+.calendar-board {
+    padding: 12px 14px 14px;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 6px;
+    margin-bottom: 6px;
+    color: #71766d;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.calendar-weekdays > div {
+    padding: 0 6px;
+}
+
+.calendar-grid {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    grid-template-rows: repeat(6, minmax(120px, 1fr));
+    gap: 6px;
+}
+
+.calendar-day-cell {
+    border: 1px solid #d8dbd1;
+    border-radius: 12px;
+    background: #fffdfa;
+    padding: 5px 6px 6px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.calendar-day-cell:hover {
+    border-color: #a8b898;
+    box-shadow: 0 8px 18px rgba(69, 76, 63, 0.08);
+    transform: translateY(-1px);
+}
+
+.calendar-day-cell.is-selected {
+    border-color: #71935b;
+    box-shadow: 0 0 0 2px rgba(113, 147, 91, 0.18);
+}
+
+.calendar-day-cell.is-today {
+    background: #f0f7ea;
+}
+
+.calendar-day-cell.is-outside-month {
+    background: #f3f1ec;
+    color: #92968f;
+}
+
+.calendar-day-cell-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+    gap: 6px;
+}
+
+.calendar-day-number {
+    font-size: 14px;
+    font-weight: 700;
+    color: #40453e;
+}
+
+.calendar-entry-count {
+    font-size: 10px;
+    color: #6f756d;
+}
+
+.calendar-day-items {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-height: 0;
+}
+
+.calendar-entry-pill {
+    border-radius: 8px;
+    background: #ebe6d7;
+    color: #4a4e47;
+    padding: 2px 5px;
+    font-size: 11px;
+    line-height: 1.15;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.calendar-entry-pill.has-job-link {
+    background: #dbe8d2;
+}
+
+.calendar-entry-more {
+    font-size: 10px;
+    color: #61745b;
+    padding-top: 1px;
+}
+
+.calendar-day-panel {
+    border-left: 1px solid #dddccd;
+    background: #fcfaf5;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.calendar-day-panel-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.calendar-day-panel-heading {
+    min-width: 0;
+}
+
+.calendar-day-panel-mobile-controls {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.calendar-day-nav-btn,
+.calendar-day-close-btn {
+    min-width: 38px;
+    height: 38px;
+    border-radius: 999px;
+    padding: 0;
+}
+
+.calendar-day-title {
+    font-size: 21px;
+    font-weight: 600;
+    color: #3f433d;
+}
+
+.calendar-day-subtitle {
+    font-size: 13px;
+    color: #6c736a;
+    margin-top: 4px;
+}
+
+.calendar-day-entries {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.calendar-empty-state {
+    border: 1px dashed #cfd5c8;
+    border-radius: 12px;
+    padding: 18px;
+    color: #6d726b;
+    background: #f8f6ef;
+}
+
+.calendar-entry-editor {
+    border: 1px solid #d8dbd1;
+    border-radius: 12px;
+    background: #ffffff;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+}
+
+.calendar-entry-editor.is-dirty {
+    border-color: #c7af6c;
+}
+
+.calendar-entry-editor-toggle {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    text-align: left;
+    font: inherit;
+}
+
+.calendar-entry-editor-toggle:hover {
+    background: #f7f4ec;
+}
+
+.calendar-entry-editor-header {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.calendar-entry-editor-summary {
+    font-size: 14px;
+    font-weight: 600;
+    color: #3f443d;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.calendar-entry-editor-meta {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    font-size: 11px;
+    color: #6f756d;
+}
+
+.calendar-entry-editor-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 6px;
+    border-radius: 999px;
+    background: #f3efe5;
+}
+
+.calendar-entry-chevron {
+    flex: 0 0 auto;
+    font-size: 12px;
+    color: #6c7268;
+    transition: transform 0.18s ease;
+}
+
+.calendar-entry-editor.is-open .calendar-entry-chevron {
+    transform: rotate(180deg);
+}
+
+.calendar-entry-editor-body {
+    display: none;
+    border-top: 1px solid #ebe7dc;
+    padding: 10px 12px 12px;
+}
+
+.calendar-entry-editor.is-open .calendar-entry-editor-body {
+    display: block;
+}
+
+.calendar-entry-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.calendar-entry-form {
+    display: grid;
+    gap: 10px;
+}
+
+.calendar-entry-form label {
+    margin: 0;
+    font-size: 12px;
+    color: #5f655d;
+    font-weight: 600;
+}
+
+.calendar-entry-form input,
+.calendar-entry-form textarea,
+.calendar-entry-form select {
+    width: 100%;
+}
+
+.calendar-entry-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.calendar-entry-form textarea {
+    min-height: 70px;
+    resize: vertical;
+}
+
+.calendar-entry-open-job {
+    align-self: flex-start;
+}
+
+@media (max-width: 991px) {
+    .order-items-toolbar {
+        align-items: stretch;
+    }
+
+    .order-items-select {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .calendar-shell {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr;
+    }
+
+    .calendar-day-panel {
+        display: none;
+    }
+
+    .calendar-day-panel.is-mobile-open {
+        display: flex;
+        position: absolute;
+        inset: 0;
+        z-index: 4;
+        border: 0;
+        padding: 12px;
+        background: #fcfaf5;
+    }
+
+    .calendar-day-panel-mobile-controls {
+        display: flex;
+    }
+
+    .calendar-board {
+        padding-right: 12px;
+    }
+
+    .calendar-grid {
+        grid-template-rows: repeat(6, minmax(104px, 1fr));
+        gap: 8px;
+    }
+
+    .calendar-day-cell {
+        padding: 6px 7px 7px;
+    }
+
+    .calendar-day-items {
+        gap: 3px;
+    }
+
+    .calendar-entry-pill {
+        font-size: 11px;
+        line-height: 1.22;
+        padding: 3px 5px;
+    }
+}
+
+.state-picker-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: rgba(0, 0, 0, 0.35);
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0 0 12px;
+}
+
+.state-picker-overlay.open {
+    display: flex;
+}
+
+.state-picker-sheet {
+    width: min(620px, 96vw);
+    max-height: 75vh;
+    overflow: auto;
+    background: #ffffff;
+    border-radius: 16px 16px 12px 12px;
+    box-shadow: 0 10px 36px rgba(0, 0, 0, 0.25);
+    padding: 12px;
+}
+
+.state-picker-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.state-picker-title {
+    font-weight: 600;
+    font-size: 18px;
+}
+
+.state-picker-close {
+    border: none;
+    background: transparent;
+    font-size: 30px;
+    line-height: 1;
+    padding: 0 8px;
+    cursor: pointer;
+}
+
+.state-picker-subtitle {
+    margin: 2px 0 10px;
+    color: #616b75;
+    font-size: 13px;
+}
+
+.state-picker-options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(140px, 1fr));
+    gap: 8px;
+}
+
+.statePickerOption {
+    border: 1px solid #d4d9dd;
+    background: #f7f8f9;
+    border-radius: 8px;
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 500;
+}
+
+.statePickerOption.current-state {
+    background: #e2e8dd;
+    color: #587345;
+}
+
+@media (max-width: 540px) {
+    .state-picker-options {
+        grid-template-columns: 1fr;
+    }
+
+    #calendarModal .modal-dialog.calendar-modal-dialog {
+        width: 100vw;
+        margin: 0;
+    }
+
+    #calendarModal .calendar-modal-content {
+        height: 100vh;
+        border-radius: 0;
+    }
+
+    .calendar-modal-header {
+        padding: 12px;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .calendar-board,
+    .calendar-day-panel {
+        padding: 12px;
+    }
+
+    .calendar-grid {
+        grid-template-rows: repeat(6, minmax(96px, 1fr));
+        gap: 7px;
+    }
+
+    .calendar-entry-row {
+        grid-template-columns: 1fr;
+    }
+
+    .calendar-modal-heading-copy {
+        display: none;
+    }
+
+    .calendar-modal-header {
+        position: relative;
+    }
+
+    .calendar-toolbar {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        max-width: calc(100vw - 116px);
+    }
+
+    .calendar-month-trigger {
+        padding: 4px 8px;
+    }
+
+    .calendar-month-trigger-label {
+        font-size: 21px;
+    }
+
+    .calendar-month-trigger-icon {
+        font-size: 10px;
+    }
+
+    .calendar-picker-row {
+        grid-template-columns: 1fr;
+    }
+
+    .calendar-day-title {
+        font-size: 19px;
+    }
+
+    .calendar-day-subtitle {
+        font-size: 12px;
+    }
+}
+
+.stats-toolbar {
+    margin-bottom: 10px;
+}
+
+.stats-tab-content {
+    margin-top: 10px;
+}
+
+#statsPipelineChart,
+#statsFlowChart,
+#statsSupplyChart {
+    max-height: 300px;
+}
+
+/* ================= Job View Refresh ================= */
+#jobDetailsPopup {
+    padding: 10px;
+    background: rgba(228, 231, 234, 0.7);
+    z-index: 30;
+}
+
+#jobDetailsPopup > .JD_modal-content {
+    width: min(1220px, 96vw);
+    height: min(94vh, 980px);
+    margin: 2vh auto;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #fdfcfb;
+    box-shadow: 0 20px 55px rgba(11, 20, 29, 0.22);
+}
+
+#jobDetailsPopup > .JD_modal-content > .close {
+    display: none;
+}
+
+#jobDetailsContent {
+    padding-top: 0;
+}
+
+#jobDetailsContent .job-view-workspace {
+    background: #fdfcfb;
+}
+
+#jobDetailsContent .job-view-main-panel {
+    background: #fdfcfb;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+#jobDetailsContent #jobFormContainerOuter {
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+#jobDetailsContent #jobFormContainerOuter > .alpaca-container,
+#jobDetailsContent #jobFormContainerOuter > form,
+#jobDetailsContent #jobFormContainerOuter .alpaca-form {
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+#jobDetailsContent #jobFormContainerOuter .alpaca-field-object {
+    padding: 0;
+}
+
+#jobFormContainer.jobViewShell {
+    position: relative;
+    background: #fdfcfb;
+    height: 100%;
+    min-height: 0;
+    flex: 1 1 auto;
+    display: grid;
+    grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+}
+
+#jobDetailsContent .alpaca-form-buttons-container {
+    display: none !important;
+}
+
+#jobViewTop.jobViewTopBar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    background: #fdfcfb;
+    border-bottom: none;
+    box-shadow: none;
+}
+
+.jobViewTopBarLeft,
+.jobViewTopBarRight {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.jobViewTopBarRight {
+    position: relative;
+    margin-right: 46px;
+}
+
+.jobViewIconButton {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    color: #38434f;
+}
+
+.jobViewIconButton .glyphicon {
+    font-size: 18px;
+}
+
+.jobViewIconButton:hover,
+.jobViewIconButton:focus {
+    background: #eef2f5;
+}
+
+.jobViewIconButton.is-disabled,
+.jobViewIconButton:disabled {
+    color: #aeb6bf;
+    background: transparent;
+}
+
+.jobViewStateButton {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+    border: none;
+    background: #ebeff2;
+    color: #2c3945;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+#jobViewNameLabel.jobViewSummaryButton {
+    width: 100%;
+    border-left: none;
+    border: none;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 4px 12px;
+    font-size: 17px;
+    font-weight: 600;
+    text-align: left;
+}
+
+.jobViewSummaryButton .glyphicon {
+    font-size: 12px;
+    color: #616b75;
+    transition: transform 0.18s ease;
+}
+
+.jobViewSummaryButton[aria-expanded='true'] .glyphicon {
+    transform: rotate(180deg);
+}
+
+#jobViewMiddle_CustomerDrawer {
+    display: none;
+    padding: 0 10px 6px;
+    position: relative;
+    z-index: 26;
+    background: #fdfcfb;
+}
+
+#jobViewMiddle_CustomerDrawer.open {
+    display: block;
+}
+
+#jobViewMiddle_CustomerDrawer .alpaca-field {
+    margin-bottom: 4px;
+}
+
+#jobViewMiddle_CustomerDrawer .alpaca-control-label {
+    display: none;
+}
+
+#jobViewMiddle_CustomerDrawer textarea {
+    min-height: 90px;
+}
+
+#jobViewMiddle.jobViewNotesArea {
+    border: none;
+    background: transparent;
+    padding: 0 10px;
+    min-height: 0;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+}
+
+#jobViewMiddle_NotesDrawer,
+#jobViewMiddle_NotesDrawer .alpaca-field,
+#jobViewMiddle_NotesDrawer .alpaca-control,
+#jobViewMiddle_NotesDrawer .form-group {
+    height: 100%;
+    min-height: 0;
+    flex: 1 1 auto;
+}
+
+#jobViewMiddle_NotesDrawer {
+    overflow: auto;
+}
+
+#jobViewMiddle_NotesDrawer .alpaca-field,
+#jobViewMiddle_NotesDrawer .alpaca-control,
+#jobViewMiddle_NotesDrawer .form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+#jobViewMiddle_NotesDrawer .alpaca-control-label {
+    display: none;
+}
+
+#jobViewMiddle_NotesDrawer .jobViewNotes {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    max-height: none;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+}
+
+#jobViewMiddle_NotesDrawer .jobViewNotes .alpaca-control {
+    flex: 1 1 auto;
+    min-height: var(--job-notes-min-height, clamp(220px, 42dvh, 640px));
+    display: flex;
+    flex-direction: column;
+}
+
+#jobViewMiddle_NotesDrawer textarea {
+    width: 100%;
+    flex: 1 1 auto;
+    height: 100% !important;
+    min-height: 0;
+    max-height: none;
+    border: none;
+    box-shadow: none;
+    background: transparent;
+    padding: 8px 0;
+    resize: none;
+    font-size: 15px;
+    line-height: 1.42;
+}
+
+#jobViewMiddle_NotesDrawer textarea:focus {
+    box-shadow: none;
+}
+
+.jobViewName input.jobViewFieldEmpty,
+.jobViewPhoneNumber input.jobViewFieldEmpty {
+    border-color: #d97a7a;
+    box-shadow: inset 0 0 0 1px rgba(217, 122, 122, 0.28);
+    background: #fff8f8;
+}
+
+.jobViewFooterDock {
+    margin-top: auto;
+    padding-bottom: 0;
+    position: relative;
+    z-index: 20;
+    --job-bottom-bar-offset: calc(60px + 8px + env(safe-area-inset-bottom));
+}
+
+#jobViewCostDock {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0 12px 6px;
+}
+
+#jobViewCostDock .alpaca-field {
+    margin: 0;
+}
+
+#jobViewCostDock .alpaca-control-label {
+    display: none;
+}
+
+#jobViewCostDock .alpaca-control {
+    width: min(25vw, 200px);
+    min-width: 96px;
+}
+
+#jobViewCostDock input[type='text'] {
+    width: 100%;
+    text-align: right;
+    border-radius: 18px;
+    border: 1px solid #dce2e8;
+    padding: 6px 10px;
+    font-weight: 600;
+}
+
+#jobViewBottom.jobViewBottomBar {
+    position: relative;
+    bottom: auto;
+    width: 100%;
+    min-height: 60px;
+    background: #f7f9fb;
+    border-top: 1px solid #e4e8ec;
+    box-shadow: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 8px 0;
+    z-index: 22;
+}
+
+.jobViewRoundButton {
+    width: 42px;
+    height: 42px;
+    border-radius: 999px;
+    border: none;
+    background: #ecf0f3;
+    color: #334252;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+.jobViewRoundButton.is-active {
+    background: #dbe6ef;
+    color: #1f3448;
+}
+
+#jobViewColorButton {
+    border: 1px solid #d4dce3;
+}
+
+.jobViewMoreWrap {
+    position: relative;
+}
+
+.jobViewFloatMenu {
+    display: none;
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 6px);
+    min-width: 170px;
+    background: #ffffff;
+    border: 1px solid #dce2e8;
+    border-radius: 12px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.14);
+    padding: 4px;
+    z-index: 5;
+}
+
+#jobViewStateMenu {
+    left: auto;
+    right: 0;
+    top: calc(100% + 6px);
+}
+
+.jobViewFloatMenu.open {
+    display: block;
+}
+
+.jobViewMenuItem {
+    width: 100%;
+    border: none;
+    background: transparent;
+    text-align: left;
+    border-radius: 8px;
+    padding: 8px 10px;
+    color: #2f3d4a;
+}
+
+.jobViewMenuItem:hover,
+.jobViewMenuItem.is-active {
+    background: #edf2f6;
+}
+
+.jobViewHiddenField,
+.jobViewHiddenField .alpaca-field,
+.jobViewHiddenField .alpaca-control {
+    display: none !important;
+}
+
+.jobViewItemsSheet {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: var(--job-bottom-bar-offset, 68px);
+    pointer-events: none;
+    visibility: hidden;
+    z-index: 21;
+}
+
+.jobViewItemsSheetBackdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.22);
+    opacity: 0;
+    transition: opacity 0.18s ease;
+}
+
+.jobViewItemsSheetPanel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 56%;
+    min-height: 260px;
+    max-height: 100%;
+    background: #eef3f8;
+    border-radius: 16px 16px 0 0;
+    transform: translateY(120%);
+    transition: transform 0.22s ease;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 -14px 34px rgba(7, 18, 29, 0.22);
+}
+
+.jobViewItemsSheet.open {
+    pointer-events: auto;
+    visibility: visible;
+}
+
+.jobViewItemsSheet.open .jobViewItemsSheetBackdrop {
+    opacity: 1;
+}
+
+.jobViewItemsSheet.open .jobViewItemsSheetPanel {
+    transform: translateY(0);
+}
+
+#jobViewMiddle_ItemsDrawer.jobViewItemsSheetBody {
+    flex: 1 1 auto;
+    overflow: auto;
+    min-height: 0;
+    max-height: none;
+    padding: 4px;
+    background: #eef3f8;
+}
+
+#jobViewMiddle_ItemsDrawer .alpaca-container,
+#jobViewMiddle_ItemsDrawer .form-group,
+#jobViewMiddle_ItemsDrawer .alpaca-field-object {
+    margin: 0;
+}
+
+#jobViewMiddle_ItemsDrawer .alpaca-layout-binding-holder,
+#jobViewMiddle_ItemsDrawer .alpaca-layout-binding-holder > .alpaca-container-item,
+#jobViewMiddle_ItemsDrawer .jobViewOrderItems,
+#jobViewMiddle_ItemsDrawer .jobViewOrderItems > .alpaca-container,
+#jobViewMiddle_ItemsDrawer .jobViewOrderItems > .alpaca-container > .alpaca-container-item,
+#jobViewMiddle_ItemsDrawer .alpaca-array-item-flex-1,
+#jobViewMiddle_ItemsDrawer .jobViewOrderItemsItem {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+#jobViewMiddle_ItemsDrawer .jobViewOrderItems > .alpaca-container > .alpaca-container-item {
+    margin-bottom: 6px;
+}
+
+#jobViewMiddle_ItemsDrawer .alpaca-array-item-flex-container {
+    border: 1px solid #d6dee8;
+    border-radius: 10px;
+    background: #ffffff;
+    box-shadow: 0 3px 9px rgba(16, 30, 44, 0.05);
+    padding: 6px;
+    margin: 0;
+}
+
+#jobViewMiddle_ItemsDrawer .jobViewOrderItemsItem > .alpaca-container {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+}
+
+#jobViewMiddle_ItemsDrawer .jobViewOrderItemsItem > .alpaca-container > .alpaca-container-item {
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+}
+
+#jobViewMiddle_ItemsDrawer .jobViewItemLabel,
+#jobViewMiddle_ItemsDrawer .jobViewItemNote {
+    grid-column: 1 / -1;
+    width: 100%;
+}
+
+#jobViewMiddle_ItemsDrawer .jobViewItemType {
+    grid-column: 1;
+}
+
+#jobViewMiddle_ItemsDrawer .jobViewItemSupplier {
+    grid-column: 2;
+}
+
+#jobViewMiddle_ItemsDrawer .jobViewItemOrdered,
+#jobViewMiddle_ItemsDrawer .jobViewItemOrderedDate,
+#jobViewMiddle_ItemsDrawer .jobViewItemDelivered,
+#jobViewMiddle_ItemsDrawer .jobViewItemDelveryDate {
+    grid-column: auto;
+    width: 100%;
+}
+
+#jobViewMiddle_ItemsDrawer .alpaca-field {
+    margin: 0;
+}
+
+#jobViewMiddle_ItemsDrawer .alpaca-field-select,
+#jobViewMiddle_ItemsDrawer .alpaca-field-text,
+#jobViewMiddle_ItemsDrawer .alpaca-field-checkbox,
+#jobViewMiddle_ItemsDrawer .alpaca-field-date {
+    display: block;
+}
+
+#jobViewMiddle_ItemsDrawer .alpaca-control-label {
+    width: 100%;
+    margin: 0 0 2px;
+    padding: 0;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: #5f6e7d;
+}
+
+#jobViewMiddle_ItemsDrawer .alpaca-control.checkbox {
+    min-height: 38px;
+    border: 1px solid #d7dfe7;
+    border-radius: 10px;
+    padding: 8px 10px;
+    background: #f9fbfd;
+}
+
+#jobViewMiddle_ItemsDrawer input[type='text'],
+#jobViewMiddle_ItemsDrawer input[type='date'],
+#jobViewMiddle_ItemsDrawer select {
+    width: 100%;
+    border: 1px solid #d7dfe7;
+    border-radius: 8px;
+    background: #fbfdff;
+    min-height: 34px;
+    padding: 6px 8px;
+}
+
+#jobViewMiddle_ItemsDrawer input:focus,
+#jobViewMiddle_ItemsDrawer select:focus {
+    border-color: #8aa4bd;
+    box-shadow: 0 0 0 2px rgba(117, 152, 183, 0.18);
+    outline: none;
+}
+
+#jobViewMiddle_ItemsDrawer .alpaca-array-toolbar {
+    margin: 0 0 4px;
+    padding: 0;
+}
+
+#jobViewMiddle_ItemsDrawer .alpaca-array-toolbar .btn,
+#jobViewMiddle_ItemsDrawer .alpaca-array-actionbar .btn {
+    border-radius: 10px;
+}
+
+#jobViewMiddle_ItemsDrawer .alpaca-array-actionbar {
+    margin-top: 4px;
+}
+
+@media (max-width: 640px) {
+    #jobViewMiddle_ItemsDrawer .jobViewOrderItemsItem > .alpaca-container {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #jobViewMiddle_ItemsDrawer .jobViewItemLabel,
+    #jobViewMiddle_ItemsDrawer .jobViewItemNote {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (min-width: 992px) {
+    #jobViewMiddle_ItemsDrawer .jobViewOrderItemsItem > .alpaca-container {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    #jobViewMiddle_ItemsDrawer .jobViewItemType {
+        grid-column: 1 / span 2;
+    }
+
+    #jobViewMiddle_ItemsDrawer .jobViewItemSupplier {
+        grid-column: 3 / span 2;
+    }
+}
+
+@media (max-width: 991px) {
+    #jobDetailsPopup {
+        padding: 0;
+    }
+
+    #jobDetailsPopup > .JD_modal-content {
+        width: 100vw;
+        height: 100vh;
+        height: 100dvh;
+        height: var(--job-mobile-vh, 100dvh);
+        max-height: var(--job-mobile-vh, 100dvh);
+        margin: 0;
+        border-radius: 0;
+    }
+
+    #jobDetailsContent {
+        height: var(--job-mobile-vh, 100%);
+        min-height: 0;
+    }
+
+    #jobFormContainer.jobViewShell {
+        height: 100%;
+        min-height: 0;
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .jobViewFooterDock {
+        padding-bottom: 0;
+    }
+
+    #jobViewBottom.jobViewBottomBar {
+        padding-bottom: calc(8px + env(safe-area-inset-bottom));
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    #jobViewCostDock .alpaca-control {
+        width: 25vw;
+        min-width: 88px;
+    }
+}
+
+.jobViewTextButton {
+    min-width: 44px;
+    width: auto;
+    padding: 0 12px;
+}
+
+.jobViewRoundButtonLabel {
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.jobViewRoundButtonIcon {
+    font-size: 16px;
+    line-height: 1;
+}
+
+.jobViewUtilitySheet .jobViewItemsSheetPanel {
+    max-width: min(980px, calc(100vw - 24px));
+}
+
+.jobViewInvoiceModal {
+    position: fixed;
+    inset: 0;
+    bottom: 0;
+    z-index: 40;
+}
+
+.jobViewInvoiceModal .jobViewItemsSheetBackdrop {
+    background: rgba(7, 18, 29, 0.52);
+}
+
+.jobViewInvoiceModalPanel {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    min-height: 100%;
+    max-width: none !important;
+    max-height: 100%;
+    border-radius: 0;
+    background: #e8eef5;
+    transform: translateY(100%);
+    box-shadow: none;
+}
+
+.jobViewUtilitySheetPanel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: min(90vh, 920px);
+}
+
+.jobViewUtilitySheetHeader,
+.jobViewUtilitySheetToolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.jobViewUtilitySheetHeader h3 {
+    margin: 0;
+    font-size: 22px;
+}
+
+.jobViewUtilitySheetActions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.jobViewUtilityStatus {
+    min-height: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #616b75;
+}
+
+.jobViewUtilityStatus.is-saving {
+    color: #5e6670;
+}
+
+.jobViewUtilityStatus.is-success {
+    color: #2d6a4f;
+}
+
+.jobViewUtilityStatus.is-warning {
+    color: #8a6700;
+}
+
+.jobViewUtilityStatus.is-error {
+    color: #b42318;
+}
+
+.jobViewUtilitySheetBody {
+    overflow: auto;
+    padding-right: 4px;
+}
+
+.jobViewInvoiceModal .jobViewUtilitySheetBody {
+    flex: 1 1 auto;
+    padding: 18px;
+    overflow: auto;
+}
+
+.invoiceDocument {
+    background: #fff;
+    border: 1px solid #d9e0e7;
+    border-radius: 16px;
+    padding: 24px;
+    color: #1d2939;
+    width: min(1120px, 100%);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: max(780px, calc(100vh - 280px));
+}
+
+.invoiceHeader {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    padding-bottom: 18px;
+    border-bottom: 2px solid #d8e5f3;
+}
+
+.invoiceBrand {
+    display: flex;
+    align-items: flex-start;
+    max-width: 240px;
+}
+
+.invoiceLogoImage {
+    display: block;
+    width: min(220px, 100%);
+    height: auto;
+}
+
+.invoiceTitleWrap {
+    text-align: right;
+}
+
+.invoiceTitle {
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.invoiceNumber {
+    margin-top: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #475467;
+}
+
+.invoiceMetaGrid,
+.invoiceSummaryGrid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
+    gap: 18px;
+    margin-top: 18px;
+}
+
+.invoiceSummaryGrid {
+    margin-top: auto;
+    padding-top: 12px;
+}
+
+.invoiceCustomerBlock,
+.invoiceInfoBlock,
+.invoiceTotalsCard,
+.invoiceFooterInfo {
+    padding: 16px;
+    border: 1px solid #d9e0e7;
+    border-radius: 14px;
+    background: #fcfdff;
+}
+
+.invoiceLabel {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #475467;
+}
+
+.invoiceInput,
+.invoiceTextarea,
+.invoiceTableInput,
+.invoiceTableTextarea {
+    width: 100%;
+    border: 1px solid #cfd8e3;
+    border-radius: 10px;
+    padding: 9px 10px;
+    font: inherit;
+    background: #fff;
+    margin-bottom: 12px;
+}
+
+.invoiceTextarea,
+.invoiceTableTextarea {
+    resize: vertical;
+}
+
+.invoiceTableWrap {
+    margin-top: 18px;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 160px;
+}
+
+.invoiceTable {
+    width: 100%;
+    border-collapse: collapse;
+    height: 100%;
+}
+
+.invoiceTable th,
+.invoiceTable td {
+    border: 1px solid #d9e0e7;
+    padding: 10px;
+    vertical-align: top;
+}
+
+.invoiceTable th {
+    background: #eff5fb;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.invoiceQtyCol {
+    width: 82px;
+}
+
+.invoiceCostCol,
+.invoiceTotalCol {
+    width: 140px;
+}
+
+.invoiceActionCol {
+    width: 88px;
+}
+
+.invoiceLineTotal {
+    padding-top: 9px;
+    font-weight: 700;
+}
+
+.invoiceFooterHeading {
+    margin: 0 0 6px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #475467;
+}
+
+.invoiceFooterColumns {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.invoiceFooterColumn {
+    min-width: 0;
+}
+
+.invoiceTotalsRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #d9e0e7;
+}
+
+.invoiceTotalsRow:last-child {
+    border-bottom: none;
+}
+
+.invoiceTotalsRowGrand {
+    font-size: 18px;
+}
+
+.invoiceFooterContactBar {
+    margin-top: 12px;
+    padding: 10px 14px;
+    border: 1px solid #d9e0e7;
+    border-radius: 10px;
+    background: #ffffff;
+    text-align: center;
+    color: #475467;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.invoiceFooterContactDivider {
+    margin: 0 10px;
+    color: #98a2b3;
+}
+
+.jobViewFilesList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.jobViewFilesEmpty {
+    margin: 0;
+    padding: 20px 0;
+    color: #667085;
+}
+
+.jobViewFileRow {
+    padding: 14px 16px;
+    border: 1px solid #d9e0e7;
+    border-radius: 14px;
+    background: #fcfdff;
+}
+
+.jobViewFileLink {
+    color: #1d4f91;
+    font-weight: 600;
+    word-break: break-word;
+}
+
+.jobViewFileMeta {
+    margin-top: 4px;
+    font-size: 13px;
+    color: #667085;
+}
+
+@media (max-width: 840px) {
+    .invoiceHeader,
+    .invoiceMetaGrid,
+    .invoiceSummaryGrid,
+    .jobViewUtilitySheetHeader,
+    .jobViewUtilitySheetToolbar {
+        grid-template-columns: 1fr;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .invoiceTitleWrap {
+        text-align: left;
+    }
+
+    .invoiceFooterColumns {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .invoiceFooterContactBar {
+        text-align: left;
+        line-height: 1.6;
+    }
+
+    .invoiceFooterContactDivider {
+        display: none;
+    }
+
+    .jobViewInvoiceModal .jobViewUtilitySheetBody {
+        padding: 12px;
+    }
+
+    .invoiceDocument {
+        padding: 16px;
+        border-radius: 12px;
+    }
+}
+
+@media print {
+    @page {
+        size: A4;
+        margin: 3mm;
+    }
+
+    html,
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+        width: auto !important;
+        height: auto !important;
+    }
+
+    body.jobViewPrintingInvoice > * {
+        display: none !important;
+    }
+
+    body.jobViewPrintingInvoice #jobDetailsPopup {
+        display: block !important;
+        position: static !important;
+        width: auto !important;
+        height: auto !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: #fff !important;
+        overflow: visible !important;
+        border-radius: 0 !important;
+    }
+
+    body.jobViewPrintingInvoice #jobDetailsPopup > .JD_modal-content,
+    body.jobViewPrintingInvoice #jobDetailsContent,
+    body.jobViewPrintingInvoice #jobFormContainer,
+    body.jobViewPrintingInvoice #jobViewInvoiceSheet,
+    body.jobViewPrintingInvoice #jobViewInvoiceSheet .jobViewItemsSheetPanel,
+    body.jobViewPrintingInvoice #jobViewInvoiceSheet .jobViewUtilitySheetBody {
+        display: block !important;
+        position: static !important;
+        inset: auto !important;
+        width: auto !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow: visible !important;
+        transform: none !important;
+        background: #fff !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
+    }
+
+    body.jobViewPrintingInvoice #jobViewInvoiceSheet .jobViewItemsSheetBackdrop,
+    body.jobViewPrintingInvoice #jobViewInvoiceSheet .jobViewUtilitySheetHeader,
+    body.jobViewPrintingInvoice #jobViewInvoiceSheet .jobViewUtilitySheetToolbar,
+    body.jobViewPrintingInvoice #jobViewInvoiceSheet .no-print {
+        display: none !important;
+    }
+
+    body.jobViewPrintingInvoice #jobViewInvoicePrintArea {
+        position: static !important;
+        width: 100%;
+        margin: 0;
+        border: none;
+        border-radius: 0;
+        padding: 0;
+        box-shadow: none;
+        page-break-inside: auto;
+    }
+
+    body.jobViewPrintingInvoice .jobViewFooterDock,
+    body.jobViewPrintingInvoice .jobViewTopBar,
+    body.jobViewPrintingInvoice .jobViewSummaryButton,
+    body.jobViewPrintingInvoice .job-view-workspace,
+    body.jobViewPrintingInvoice #jobViewMiddle,
+    body.jobViewPrintingInvoice #jobViewMiddle_CustomerDrawer,
+    body.jobViewPrintingInvoice #jobViewItemsSheet,
+    body.jobViewPrintingInvoice #jobViewFilesSheet {
+        display: none !important;
+    }
+
+    body.jobViewPrintingInvoice .invoiceMetaGrid,
+    body.jobViewPrintingInvoice .invoiceSummaryGrid {
+        grid-template-columns: minmax(0, 2fr) minmax(70mm, 1fr);
+    }
+
+    body.jobViewPrintingInvoice .invoiceInput,
+    body.jobViewPrintingInvoice .invoiceTextarea,
+    body.jobViewPrintingInvoice .invoiceTableInput,
+    body.jobViewPrintingInvoice .invoiceTableTextarea {
+        border: none;
+        padding: 0;
+        margin: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    body.jobViewPrintingInvoice .invoiceTable th,
+    body.jobViewPrintingInvoice .invoiceTable td,
+    body.jobViewPrintingInvoice .invoiceCustomerBlock,
+    body.jobViewPrintingInvoice .invoiceInfoBlock,
+    body.jobViewPrintingInvoice .invoiceTotalsCard,
+    body.jobViewPrintingInvoice .invoiceFooterInfo {
+        break-inside: avoid;
+    }
+}

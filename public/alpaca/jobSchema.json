@@ -1,0 +1,193 @@
+{
+  "title": "Job",
+  "type": "object",
+  "properties": {
+    "jobNumber": {
+      "type": "string",
+      "title": "Job:"
+    },
+    "customerDetails": {
+      "type": "object",
+      
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "Name"
+        },
+        "address": {
+          "type": "string"
+          
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "title": "Email"
+        },
+        "phoneNumber": {
+          "type": "string",
+          "title": "Phone Number"
+        }
+      }
+    },
+    "notes": {
+      "type": "string"      
+    },
+    "jobState": {
+      "type": "string",
+      "title": "State",
+      "enum": ["Initial", "Measuring", "Needs Quote", "Quoted", "Going Ahead", "Materials Ordered", "Making", "Fitting", "Invoiced", "Completed", "Rejected", "Archived"],
+      "default": "Initial"
+    },
+    "colorPick": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "orderItems": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "itemID": {
+            "type": "string"
+          },
+          "itemType": {
+            "type": "string", 
+            "enum" :["Fabric", "Track", "Pole", "Roller", "Other"],
+            "default": "Fabric"
+          },
+          "supplier": {
+            "type": "string",
+            "enum": ["PT", "AW", "iLiv", "Chatsworth","CGF","Chess", "Fryetts/P&S","Adwin","C&C/StudioG","Decorquip","Evans", "speedy", "renaisance","Pavilion", "AOTL","Gordon John","BB","Other","PTBlinds", "Warner/Pure Edit", "LiveDale", "Voyage/riva"]
+          },
+          "item": {
+            "type": "string"
+          },
+          "ordered": {
+            "type": "boolean"
+          },
+          "orderDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "delivered": {
+            "type": "boolean"
+            
+          },
+          "deliveryDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "timeline": {
+      "type": "array",
+      "title": "Timeline",
+      "items": {
+          "type": "object",
+          "properties": {
+              "label": {
+                  "type": "string",
+                  "title": "Action"
+              },
+              "time": {
+                  "type": "string",
+                  "title": "Action Date"
+              }
+          }
+      },
+      "required": false,
+      "properties": {}
+  },
+    "invoice": {
+      "type": "object",
+      "required": false,
+      "properties": {
+        "invoiceNumber": {
+          "type": "string"
+        },
+        "issueDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "customerName": {
+          "type": "string"
+        },
+        "customerAddress": {
+          "type": "string"
+        },
+        "jobReference": {
+          "type": "string"
+        },
+        "company": {
+          "type": "object",
+          "properties": {
+            "lineSmall": {
+              "type": "string"
+            },
+            "lineLarge": {
+              "type": "string"
+            }
+          }
+        },
+        "vatRate": {
+          "type": "number"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "lineItems": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "qty": {
+                "type": "number"
+              },
+              "description": {
+                "type": "string"
+              },
+              "unitCost": {
+                "type": "number"
+              },
+              "lineTotal": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "totals": {
+          "type": "object",
+          "properties": {
+            "netTotal": {
+              "type": "number"
+            },
+            "vatTotal": {
+              "type": "number"
+            },
+            "grossTotal": {
+              "type": "number"
+            }
+          }
+        },
+        "pdfFiles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "updatedAt": {
+          "type": "string"
+        }
+      }
+    },
+    
+    "jobCost":{
+      "type": "string",
+      "title": "Cost"
+    }
+  }
+}

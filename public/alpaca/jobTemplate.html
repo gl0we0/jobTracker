@@ -1,0 +1,91 @@
+<div id="jobFormContainer" class="jobViewShell">
+    <div id="jobViewTop" class="jobViewTopBar">
+        <div class="jobViewTopBarLeft">
+            <button type="button" id="jobViewBackButton" class="jobViewIconButton" aria-label="Back">
+                <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+            </button>
+            <button type="button" id="jobViewSaveButton" class="jobViewIconButton" aria-label="Save" disabled>
+                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+            </button>
+            <span id="jobViewSaveStatus" class="jobViewSaveStatus" aria-live="polite"></span>
+        </div>
+        <div class="jobViewTopBarRight">
+            <div id="jobViewStateField" class="jobViewHiddenField"></div>
+            <button type="button" id="jobViewStateButton" class="jobViewStateButton" aria-haspopup="true" aria-expanded="false">--</button>
+            <div id="jobViewStateMenu" class="jobViewFloatMenu" aria-hidden="true"></div>
+        </div>
+    </div>
+
+    <button type="button" id="jobViewNameLabel" class="jobViewSummaryButton" aria-expanded="false">
+        <span class="jobViewNameLabelText">Job</span>
+        <span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span>
+    </button>
+
+    <div id="jobViewMiddle_CustomerDrawer" class="jobViewCustomerPanel"></div>
+
+    <div id="jobViewMiddle" class="jobViewNotesArea">
+        <div id="jobViewMiddle_NotesDrawer"></div>
+    </div>
+
+    <div class="jobViewFooterDock">
+        <div id="jobViewCostDock"></div>
+
+        <div id="jobViewBottom" class="jobViewBottomBar">
+            <div id="jobViewColorField" class="jobViewHiddenField"></div>
+            <div id="jobViewTimelineField" class="jobViewHiddenField"></div>
+            <div id="jobViewHiddenInvoice" class="jobViewHiddenField"></div>
+            <div id="jobViewHiddenJobNumber" class="jobViewHiddenField"></div>
+
+            <button type="button" id="jobViewColorButton" class="jobViewRoundButton" aria-label="Change color"></button>
+            <button type="button" id="jobViewInvoiceButton" class="jobViewRoundButton" aria-label="Invoice" disabled>
+                <i class="bi bi-file-text jobViewRoundButtonIcon" aria-hidden="true"></i>
+            </button>
+            <button type="button" id="jobViewFilesButton" class="jobViewRoundButton" aria-label="Files" disabled>
+                <i class="bi bi-folder2 jobViewRoundButtonIcon" aria-hidden="true"></i>
+            </button>
+            <button type="button" id="jobViewItemsButton" class="jobViewRoundButton" aria-label="Items" aria-expanded="false">
+                <span class="glyphicon glyphicon-tasks" aria-hidden="true"></span>
+            </button>
+
+            <div class="jobViewMoreWrap">
+                <button type="button" id="jobViewMoreButton" class="jobViewRoundButton" aria-haspopup="true" aria-expanded="false" aria-label="More options">
+                    <span class="glyphicon glyphicon-option-vertical" aria-hidden="true"></span>
+                </button>
+                <div id="jobViewMoreMenu" class="jobViewFloatMenu" aria-hidden="true">
+                    <button type="button" id="jobViewTimelineMenuButton" class="jobViewMenuItem">Timeline</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="jobViewItemsSheet" class="jobViewItemsSheet" aria-hidden="true">
+        <div class="jobViewItemsSheetBackdrop" data-items-sheet-close></div>
+        <div class="jobViewItemsSheetPanel">
+            <div id="jobViewMiddle_ItemsDrawer" class="jobViewItemsSheetBody"></div>
+        </div>
+    </div>
+
+    <div id="jobViewInvoiceSheetMount"></div>
+
+    <div id="jobViewFilesSheet" class="jobViewItemsSheet jobViewUtilitySheet" aria-hidden="true">
+        <div class="jobViewItemsSheetBackdrop" data-files-sheet-close></div>
+        <div class="jobViewItemsSheetPanel jobViewUtilitySheetPanel">
+            <div class="jobViewUtilitySheetHeader">
+                <h3>Files</h3>
+                <div class="jobViewUtilitySheetActions">
+                    <span id="jobViewFilesStatus" class="jobViewUtilityStatus" aria-live="polite"></span>
+                    <button type="button" id="jobViewFilesCloseButton" class="jobViewIconButton" aria-label="Close files sheet" data-files-sheet-close>
+                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                    </button>
+                </div>
+            </div>
+            <div class="jobViewUtilitySheetBody">
+                <div class="jobViewUtilitySheetToolbar">
+                    <button type="button" id="jobViewFilesUploadButton" class="btn btn-default">Upload File</button>
+                    <input type="file" id="jobViewFilesInput" hidden>
+                </div>
+                <div id="jobViewFilesList" class="jobViewFilesList"></div>
+            </div>
+        </div>
+    </div>
+</div>
