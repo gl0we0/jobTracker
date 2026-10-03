@@ -340,7 +340,8 @@
   margin: 2.5vh auto;
 }
 
-#railBendingModal .modal-dialog {
+#railBendingModal .modal-dialog,
+#curtainEyeletModal .modal-dialog {
   width: min(1200px, 96vw);
   margin: 2.5vh auto;
 }
@@ -351,7 +352,8 @@
   overflow: hidden;
 }
 
-#railBendingModal .modal-content {
+#railBendingModal .modal-content,
+#curtainEyeletModal .modal-content {
   border-radius: 12px;
   border: 1px solid #d7dde4;
   overflow: hidden;
@@ -368,7 +370,8 @@
   flex-direction: column;
 }
 
-#railBendingModal .modal-body {
+#railBendingModal .modal-body,
+#curtainEyeletModal .modal-body {
   padding: 0;
   height: 90vh;
   display: flex;
@@ -384,7 +387,8 @@
   background: #f7f9fb;
 }
 
-#railBendingModal .curtain-pricing-toolbar {
+#railBendingModal .curtain-pricing-toolbar,
+#curtainEyeletModal .curtain-pricing-toolbar {
   height: 52px;
   display: flex;
   align-items: center;
@@ -398,7 +402,8 @@
   z-index: auto;
 }
 
-#railBendingModal .curtain-pricing-close-btn {
+#railBendingModal .curtain-pricing-close-btn,
+#curtainEyeletModal .curtain-pricing-close-btn {
   position: static;
   z-index: auto;
 }
@@ -408,7 +413,8 @@
   min-height: 0;
 }
 
-#railBendingModal .curtain-pricing-frame {
+#railBendingModal .curtain-pricing-frame,
+#curtainEyeletModal .curtain-pricing-frame {
   flex: 1 1 auto;
   min-height: 0;
 }

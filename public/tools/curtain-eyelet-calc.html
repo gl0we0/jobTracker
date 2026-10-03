@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Curtain Eyelet Spacing Calculator</title>
+<style>
+  :root { font-family: system-ui, -apple-system, Segoe UI, sans-serif; color:#202124; }
+  body { margin:0; background:#f5f5f5; }
+  main { max-width:900px; margin:24px auto; padding:0 18px 24px; }
+  .card { background:white; border:1px solid #ddd; border-radius:14px; padding:22px; box-shadow:0 2px 10px #0000000d; }
+  h1 { margin:0 0 8px; font-size:1.5rem; }
+  p { margin:6px 0 18px; color:#555; }
+  .inputs { display:grid; grid-template-columns:repeat(3,minmax(150px,1fr)); gap:14px; }
+  label { font-weight:600; font-size:.9rem; }
+  input { width:100%; box-sizing:border-box; margin-top:6px; padding:10px; border:1px solid #bbb; border-radius:8px; font-size:1rem; }
+  .results { display:flex; gap:24px; flex-wrap:wrap; margin:20px 0; padding:14px; background:#f7f7f7; border-radius:10px; }
+  .result strong { display:block; font-size:1.25rem; }
+  .result span { color:#666; font-size:.85rem; }
+  canvas { width:100%; height:300px; border:1px solid #ddd; border-radius:10px; display:block; background:white; }
+  .note { font-size:.85rem; margin-top:12px; }
+  @media(max-width:650px){ .inputs{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<main>
+<div class="card">
+  <h1>Curtain Eyelet Spacing Calculator</h1>
+  <p>Enter the curtain width, your approximate target gap between eyelet centres, and the edge-to-centre gap. The calculator chooses the nearest <strong>even</strong> number of eyelets.</p>
+
+  <div class="inputs">
+    <label>Curtain width (cm)
+      <input id="width" type="number" min="1" step="0.1" value="207">
+    </label>
+    <label>Target eyelet gap (cm)
+      <input id="targetGap" type="number" min="0.1" step="0.1" value="17.5">
+    </label>
+    <label>Edge gap (cm)
+      <input id="edgeGap" type="number" min="0" step="0.01" value="8.89">
+    </label>
+  </div>
+
+  <div class="results">
+    <div class="result"><strong id="eyeletCount">—</strong><span>eyelets</span></div>
+    <div class="result"><strong id="actualGap">—</strong><span>actual centre-to-centre gap</span></div>
+    <div class="result"><strong id="usable">—</strong><span>first-to-last centre distance</span></div>
+  </div>
+
+  <canvas id="diagram"></canvas>
+  <p class="note">The schematic shows the curtain edge and the first three eyelets. Drawing is illustrative; the measurements shown are calculated values.</p>
+</div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const inputs = [$('width'), $('targetGap'), $('edgeGap')];
+const canvas = $('diagram');
+const ctx = canvas.getContext('2d');
+
+function chooseEvenEyeletCount(width, target, edge) {
+  const usable = width - 2 * edge;
+  if (usable <= 0 || target <= 0) return null;
+
+  // For N eyelets there are N-1 equal centre-to-centre spaces.
+  // Estimate N, then test nearby even values and choose the one
+  // whose resulting gap is closest to the requested target.
+  const estimate = usable / target + 1;
+  let best = null;
+
+  for (let n = 2; n <= Math.max(200, Math.ceil(estimate) + 10); n += 2) {
+    const gap = usable / (n - 1);
+    const error = Math.abs(gap - target);
+    if (!best || error < best.error) best = { n, gap, error };
+  }
+  return { ...best, usable };
+}
+
+function line(x1,y1,x2,y2,width=1) {
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+  ctx.lineWidth=width; ctx.strokeStyle='#333'; ctx.stroke();
+}
+
+function arrow(x1,y,x2,label) {
+  line(x1,y,x2,y,1.5);
+  const a=7;
+  ctx.beginPath(); ctx.moveTo(x1,y); ctx.lineTo(x1+a,y-a/2); ctx.lineTo(x1+a,y+a/2); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(x2,y); ctx.lineTo(x2-a,y-a/2); ctx.lineTo(x2-a,y+a/2); ctx.closePath(); ctx.fill();
+  ctx.font='14px system-ui'; ctx.textAlign='center'; ctx.textBaseline='bottom';
+  ctx.fillText(label,(x1+x2)/2,y-7);
+}
+
+function update() {
+  const width = +$('width').value;
+  const target = +$('targetGap').value;
+  const edge = +$('edgeGap').value;
+  const result = chooseEvenEyeletCount(width,target,edge);
+
+  if (!result) {
+    $('eyeletCount').textContent = $('actualGap').textContent = $('usable').textContent = 'Invalid';
+    draw(null,width,edge);
+    return;
+  }
+
+  $('eyeletCount').textContent = result.n;
+  $('actualGap').textContent = result.gap.toFixed(2) + ' cm';
+  $('usable').textContent = result.usable.toFixed(2) + ' cm';
+  draw(result,width,edge);
+}
+
+function draw(result,width,edge) {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width*dpr; canvas.height = rect.height*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  const W=rect.width, H=rect.height;
+  ctx.clearRect(0,0,W,H);
+
+  if (!result) {
+    ctx.fillStyle='#a00'; ctx.font='16px system-ui'; ctx.fillText('Check the measurements.',20,40); return;
+  }
+
+  const left=55, right=W-35, top=55, bottom=235;
+  const shownDistance = edge + result.gap*2 + Math.max(result.gap*.6, 8);
+  const scale = (right-left)/shownDistance;
+  const edgeX=left;
+  const x1=edgeX + edge*scale;
+  const x2=x1 + result.gap*scale;
+  const x3=x2 + result.gap*scale;
+
+  // Curtain
+  ctx.fillStyle='#f1f1f1'; ctx.fillRect(edgeX,top,right-edgeX,bottom-top);
+  ctx.strokeStyle='#777'; ctx.lineWidth=2; ctx.strokeRect(edgeX,top,right-edgeX,bottom-top);
+  ctx.fillStyle='#555'; ctx.font='13px system-ui'; ctx.textAlign='left';
+  ctx.fillText('CURTAIN EDGE',edgeX,top-12);
+
+  // Eyelets
+  [x1,x2,x3].forEach((x,i)=>{
+    ctx.beginPath(); ctx.arc(x,120,18,0,Math.PI*2);
+    ctx.fillStyle='white'; ctx.fill(); ctx.strokeStyle='#222'; ctx.lineWidth=4; ctx.stroke();
+    line(x,96,x,145,1);
+    ctx.fillStyle='#222'; ctx.font='12px system-ui'; ctx.textAlign='center';
+    ctx.fillText('Eyelet '+(i+1),x,165);
+  });
+
+  // Measurement extension lines
+  [edgeX,x1,x2,x3].forEach(x => line(x,178,x,224,1));
+
+  arrow(edgeX,198,x1, edge.toFixed(2)+' cm edge gap');
+  arrow(x1,220,x2, result.gap.toFixed(2)+' cm');
+  arrow(x2,220,x3, result.gap.toFixed(2)+' cm');
+
+  ctx.fillStyle='#666'; ctx.font='12px system-ui'; ctx.textAlign='center';
+  ctx.fillText('Measurements are centre-to-centre', (x1+x3)/2, 255);
+}
+
+inputs.forEach(i=>i.addEventListener('input',update));
+window.addEventListener('resize',update);
+update();
+</script>
+</body>
+</html>

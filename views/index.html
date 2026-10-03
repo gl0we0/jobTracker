@@ -129,10 +129,11 @@
             <img src="images/gear.png" alt="Settings" style="width: 30px; height: 30px;">
         </button>
     
-        <!-- Dropdown Menu -->
+        <!-- tools Dropdown Menu -->
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
             <a class="dropdown-item" href="#">Action</a>
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#railBendingModal">Rail Bending</a>
+            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#curtainEyeletModal">Eyelet Spacing</a>
             <a class="dropdown-item" href="/backup-download">Backup</a>
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#statsModal">View Stats</a>
             <div class="dropdown-submenu">
@@ -335,6 +336,30 @@
                     class="curtain-pricing-frame"
                     src="/tools/rail-bending.html"
                     title="Rail Bending Tool"
+                    loading="lazy">
+                </iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="curtainEyeletModal" tabindex="-1" aria-label="Curtain Eyelet Spacing Calculator" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="curtain-pricing-toolbar">
+                    <button
+                        type="button"
+                        class="jobViewIconButton curtain-pricing-close-btn"
+                        data-dismiss="modal"
+                        aria-label="Close curtain eyelet spacing calculator">
+                        <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+                    </button>
+                </div>
+                <iframe
+                    class="curtain-pricing-frame"
+                    src="/tools/curtain-eyelet-calc.html"
+                    title="Curtain Eyelet Spacing Calculator"
                     loading="lazy">
                 </iframe>
             </div>
