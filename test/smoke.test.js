@@ -120,6 +120,7 @@ test('GET curtain pricing settings returns the persisted configuration', async (
     assert.equal(res.statusCode, 200);
     assert.equal(res.body.version, 1);
     assert.equal(res.body.headings.pencil.label, 'Pencil Pleat');
+    assert.equal(res.body.curtainConstruction.widthAllowancePerFinishedCurtainCm, 20);
     assert.ok(Array.isArray(res.body.romanBlinds.mechanisms.standard.rows));
     assert.ok(Array.isArray(res.body.linings.options));
 });

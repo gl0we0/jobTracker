@@ -3,6 +3,7 @@ const app = {
   config: null,
   savedConfig: null,
   settings: {
+    curtain: { widthAllowancePerFinishedCurtainCm: 20 },
     headings: {
       pencil: { mult: 2, addon: 26, makeup: 32 },
       triple: { mult: 2, addon: 40, makeup: 45 },
@@ -23,6 +24,64 @@ const app = {
   isOdd(n) { return (n % 2) === 1; },
   toEven(n) { return (n % 2 === 0) ? n : n + 1; },
   cmToMetresText(cm) { return (Math.ceil(cm) / 100) + "m"; },
+  recommendationLabel(headingType, requestedFullness) {
+    const recommended = Number(this.settings.headings[headingType]?.mult || 0);
+    const names = { pencil: 'Full', triple: 'Full', eyelet: 'Standard', wave: 'Full' };
+    const description = names[headingType] || 'Selected';
+    return Math.abs(requestedFullness - recommended) < 0.001
+      ? `${description} / Recommended`
+      : description;
+  },
+  safeSliderValue(value) {
+    const slider = document.getElementById('fullness');
+    const step = Number(slider?.step) || 0.1;
+    const min = Number(slider?.min) || 0;
+    const steps = Math.floor(((value - min) / step) + 1e-9);
+    return Math.max(min, min + (steps * step));
+  },
+  renderWidthUsage(usage, headingType) {
+    const widths = usage.widthsRequired;
+    const requested = usage.requestedFullness;
+    const previousWidths = Math.max(0, widths - 1);
+    const nextWidths = widths + 1;
+    const plural = count => `${count} ${count === 1 ? 'width' : 'widths'}`;
+    const setText = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
+
+    setText('fullness-recommendation', this.recommendationLabel(headingType, requested));
+    setText('fabric-width-count', plural(widths));
+    setText('fabric-usage-left', plural(previousWidths));
+    setText('fabric-usage-right', plural(nextWidths));
+    setText('fabric-usage-selected', `${requested.toFixed(1)}×`);
+    setText('fabric-fullness-result', `Selected: ${requested.toFixed(1)}×  ·  Finished: ~${usage.actualFullness.toFixed(2)}×`);
+
+    const marker = document.getElementById('fabric-usage-marker');
+    if (marker) marker.style.left = `${(usage.positionWithinRange * 100).toFixed(2)}%`;
+
+    const distanceFromPrevious = requested - usage.previousWidthThreshold;
+    const distanceToNext = usage.nextWidthThreshold - requested;
+    const message = document.getElementById('fabric-usage-message');
+    if (message) {
+      const closeThreshold = 0.1;
+      if (widths > 1 && distanceFromPrevious <= closeThreshold + 1e-9) {
+        const savingFullness = this.safeSliderValue(usage.previousWidthThreshold);
+        message.className = 'cp-usage-message';
+        message.innerHTML = `<strong>Close to ${plural(previousWidths)}</strong>Reduce fullness to ${savingFullness.toFixed(1)}× to save one fabric width.`;
+      } else if (distanceToNext <= closeThreshold + 1e-9) {
+        const safeFullness = this.safeSliderValue(usage.nextWidthThreshold);
+        message.className = 'cp-usage-message';
+        message.innerHTML = `<strong>Close to ${plural(nextWidths)}</strong>Above ${safeFullness.toFixed(1)}× will require another fabric width.`;
+      } else {
+        const safeFullness = this.safeSliderValue(usage.nextWidthThreshold);
+        message.className = 'cp-usage-message is-good';
+        message.innerHTML = `<strong>✓ Good use of ${plural(widths)}</strong>You can increase fullness to ${safeFullness.toFixed(1)}× without requiring another width.`;
+      }
+    }
+
+    const meter = document.getElementById('fabric-usage-meter');
+    if (meter) {
+      meter.setAttribute('aria-label', `${plural(widths)} required. Selected fullness ${requested.toFixed(1)} times. Finished fullness approximately ${usage.actualFullness.toFixed(2)} times.`);
+    }
+  },
   setConvertChip(inputId, show) {
     const chip = document.getElementById(`${inputId}-convert-chip`);
     if (!chip) return;
@@ -701,6 +760,7 @@ const app = {
 
   applyConfig() {
     if (!this.config) return;
+    this.settings.curtain.widthAllowancePerFinishedCurtainCm = this.config.curtainConstruction.widthAllowancePerFinishedCurtainCm;
     for (const [key, heading] of Object.entries(this.config.headings)) {
       this.settings.headings[key] = {
         mult: heading.fullness,
@@ -802,7 +862,16 @@ const app = {
       const fullness = parseFloat(document.getElementById('fullness').value);
       document.getElementById('fullness-val').innerText = fullness.toFixed(1);
 
-      widths = Math.ceil((railW * fullness) / fabricWidthCm);
+      const finishedCurtainCount = isPair ? 2 : 1;
+      const widthAllowanceCm = this.settings.curtain.widthAllowancePerFinishedCurtainCm * finishedCurtainCount;
+      const widthUsage = window.calculateCurtainWidthUsage({
+        railWidthCm: railW,
+        fabricWidthCm,
+        requestedFullness: fullness,
+        widthAllowanceCm
+      });
+      widths = widthUsage.widthsRequired;
+      this.renderWidthUsage(widthUsage, headingType);
       baseCutHeightCm = finishedDropCm + hConf.addon;
 
       // Hardware for canvas + output
@@ -886,7 +955,7 @@ Fabric qty: ${Math.ceil(plan.quantityCm)}cm (${plan.quantityText})`;
             title, totalFabM, totalLiningM, widths,
             fabPrice, liningPrice, makeupCost, makeupUnitPrice: hConf.makeup, extraCost, hardwareCost, hardwareUnitCost,
             baseCutHeightCm, railW, finishedDropCm,
-            fullnessText: fullness.toFixed(1) + "x",
+            fullnessText: `${fullness.toFixed(1)}x requested / ${widthUsage.actualFullness.toFixed(2)}x finished`,
             matchDebug,
             hardware
           });
@@ -916,7 +985,7 @@ Fabric qty: ${Math.ceil(plan.quantityCm)}cm (${plan.quantityText})`;
         title, totalFabM, totalLiningM, widths,
         fabPrice, liningPrice, makeupCost, makeupUnitPrice: hConf.makeup, extraCost, hardwareCost, hardwareUnitCost,
         baseCutHeightCm, railW, finishedDropCm,
-        fullnessText: document.getElementById('fullness').value + 'x',
+        fullnessText: `${fullness.toFixed(1)}x requested / ${widthUsage.actualFullness.toFixed(2)}x finished`,
         matchDebug,
         hardware
       });
@@ -1068,6 +1137,7 @@ ${matchDebug ? "\n" + matchDebug : ""}`;
           ${key === 'eyelet' ? numberField('headings.eyelet.hardwarePriceEach', 'Eyelet price', 'Hardware price for each eyelet.', heading.hardwarePriceEach, { unit: '£ each' }) : ''}
         </div></article>`).join('');
     const roman = this.config.romanBlinds;
+    const construction = this.config.curtainConstruction;
     const mechanisms = ['standard', 'electric'].map(type => {
       const mechanism = roman.mechanisms[type];
       const rows = mechanism.rows.map((row, index) => `
@@ -1085,7 +1155,7 @@ ${matchDebug ? "\n" + matchDebug : ""}`;
         <button type="button" class="cp-row-remove" onclick="app.removeLining(${index})" aria-label="Remove lining option">×</button>
       </div>`).join('');
     container.innerHTML = `
-      <section class="cp-settings-section"><div class="cp-section-heading"><span>01</span><div><h3>Curtain headings</h3><p>Default fullness, allowances and making charges.</p></div></div><div class="cp-settings-grid">${headings}</div></section>
+      <section class="cp-settings-section"><div class="cp-section-heading"><span>01</span><div><h3>Curtain headings</h3><p>Default fullness, allowances and making charges.</p></div></div><article class="cp-settings-card"><div class="cp-settings-field-grid">${numberField('curtainConstruction.widthAllowancePerFinishedCurtainCm', 'Width allowance per curtain', 'Side-turn allowance deducted from each finished curtain.', construction.widthAllowancePerFinishedCurtainCm, { step: 1, unit: 'cm' })}</div></article><div class="cp-settings-grid">${headings}</div></section>
       <section class="cp-settings-section"><div class="cp-section-heading"><span>02</span><div><h3>Roman blinds</h3><p>${esc(roman.description)}</p></div></div>
         <article class="cp-settings-card"><div class="cp-settings-field-grid">${numberField('romanBlinds.dropAllowanceCm', 'Drop allowance', 'Added to the finished blind drop.', roman.dropAllowanceCm, { step: 1, unit: 'cm' })}${numberField('romanBlinds.widthAllowanceCm', 'Width allowance', 'Added before calculating fabric widths.', roman.widthAllowanceCm, { step: 1, unit: 'cm' })}${numberField('romanBlinds.baseMakingPrice', 'Base making price', 'Fixed charge for each blind.', roman.baseMakingPrice, { unit: '£' })}${numberField('romanBlinds.makingPricePerWidth', 'Price per width', 'Additional charge for each fabric width.', roman.makingPricePerWidth, { unit: '£ / width' })}</div></article>
         <div class="cp-mechanism-grid">${mechanisms}</div></section>

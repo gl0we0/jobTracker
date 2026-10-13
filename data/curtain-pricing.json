@@ -1,6 +1,9 @@
 {
   "version": 1,
   "updatedAt": "2026-10-03T13:00:53.940Z",
+  "curtainConstruction": {
+    "widthAllowancePerFinishedCurtainCm": 20
+  },
   "headings": {
     "pencil": {
       "label": "Pencil Pleat",

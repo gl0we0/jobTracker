@@ -35,20 +35,48 @@
         </div>
 
         <div id="curtain-only">
-          <div class="cp-grid-2">
-            <div class="cp-form-group">
-              <label>Heading Type</label>
-              <select id="heading" onchange="app.syncHeading()">
-                <option value="pencil">Pencil Pleat</option>
-                <option value="triple">Triple Pleat</option>
-                <option value="eyelet">Eyelets</option>
-                <option value="wave">Wave</option>
-              </select>
+          <div class="cp-curtain-controls">
+            <div class="cp-curtain-selectors">
+              <div class="cp-form-group">
+                <label>Heading Type</label>
+                <select id="heading" onchange="app.syncHeading()">
+                  <option value="pencil">Pencil Pleat</option>
+                  <option value="triple">Triple Pleat</option>
+                  <option value="eyelet">Eyelets</option>
+                  <option value="wave">Wave</option>
+                </select>
+              </div>
+              <div class="cp-form-group">
+                <label>Curtain Configuration</label>
+                <select id="curtain-config" onchange="app.update()">
+                  <option value="single">Single curtain</option>
+                  <option value="pair" selected>Pair of curtains</option>
+                </select>
+                <div class="cp-hint">Affects allowances, half-drop matching and the canvas.</div>
+              </div>
             </div>
-            <div class="cp-form-group">
-              <label>Fullness: <b id="fullness-val">2.0</b>x</label>
+
+            <section class="cp-fullness-panel" aria-labelledby="fullness-label">
+              <div class="cp-fullness-heading">
+                <label id="fullness-label" for="fullness">Fullness</label>
+                <b><span id="fullness-val">2.0</span>&times;</b>
+              </div>
               <input type="range" id="fullness" min="1.0" max="3.5" step="0.1" value="2" oninput="app.update()">
-            </div>
+              <div id="fullness-recommendation" class="cp-fullness-recommendation"></div>
+
+              <div class="cp-usage-heading">
+                <span>Fabric usage</span>
+                <b id="fabric-width-count">3 widths</b>
+              </div>
+              <div id="fabric-usage-meter" class="cp-usage-meter" role="img" aria-label="Fabric usage">
+                <span id="fabric-usage-left" class="cp-usage-boundary cp-usage-boundary-left">2 widths</span>
+                <span class="cp-usage-track" aria-hidden="true"><span id="fabric-usage-marker" class="cp-usage-marker"></span></span>
+                <span id="fabric-usage-right" class="cp-usage-boundary cp-usage-boundary-right">4 widths</span>
+              </div>
+              <div id="fabric-usage-selected" class="cp-usage-selected">2.0&times;</div>
+              <div id="fabric-usage-message" class="cp-usage-message" aria-live="polite"></div>
+              <div id="fabric-fullness-result" class="cp-fullness-result"></div>
+            </section>
           </div>
 
           <div class="cp-form-group" id="wave-carrier-group" style="display:none;">
@@ -66,16 +94,6 @@
             <div class="cp-hint">Used for wave hook counts. Pair mode rounds each panel up to an even count.</div>
           </div>
 
-          <div class="cp-grid-2">
-            <div class="cp-form-group">
-              <label>Curtain Configuration</label>
-              <select id="curtain-config" onchange="app.update()">
-                <option value="single">Single curtain</option>
-                <option value="pair" selected>Pair of curtains</option>
-              </select>
-              <div class="cp-hint">Affects half-drop A/B rule and the canvas (1 vs 2 panels).</div>
-            </div>
-          </div>
         </div>
 
         <div id="roman-only" style="display:none;">
@@ -164,6 +182,7 @@
       </footer>
     </form>
   </dialog>
+  <script src="/js/curtainWidthUsage.js"></script>
   <script src="/js/curtainPricing.js"></script>
 </body>
 </html>

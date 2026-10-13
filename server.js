@@ -124,6 +124,10 @@ function sanitizeCurtainPricingSettings(payload) {
         eyelet: ['Eyelets', 'Eyelet heading, including a price for each eyelet used.'],
         wave: ['Wave', 'Wave tape heading for 6cm or 8cm carrier spacing.']
     };
+    const constructionSource = payload.curtainConstruction;
+    if (!constructionSource || typeof constructionSource !== 'object' || Array.isArray(constructionSource)) {
+        throw new Error('Missing curtain construction settings');
+    }
     const headings = {};
     for (const [key, defaults] of Object.entries(headingDefaults)) {
         const source = payload.headings && payload.headings[key];
@@ -184,6 +188,13 @@ function sanitizeCurtainPricingSettings(payload) {
     return {
         version: 1,
         updatedAt: new Date().toISOString(),
+        curtainConstruction: {
+            widthAllowancePerFinishedCurtainCm: finiteNumber(
+                constructionSource.widthAllowancePerFinishedCurtainCm,
+                'Curtain width allowance per finished curtain',
+                { max: 500 }
+            )
+        },
         headings,
         romanBlinds: {
             label: cleanText(romanSource.label, 'Roman Blinds', 80),
